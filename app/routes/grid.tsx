@@ -4,6 +4,7 @@ import { CurrencyGrid } from '~/lib/CurrencyGrid';
 const Grid = () => {
   const [currency, setCurrency] = useState('');
   const [interval, setInterval] = useState('1');
+  const [showDrawingToolbar, setShowDrawingToolbar] = useState(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -26,10 +27,10 @@ const Grid = () => {
   }, [currency]);
 
   return (
-    <div>
-      <CurrencyGrid key={interval} currency={currency} interval={Number(interval)} />
-      <div un-float='right' un-grid='~ flow-col auto-cols-min gap-x-4'>
-        <input
+    <div un-h='[calc(100vh-16px)]' >
+      <CurrencyGrid un-h='[calc(100%-21px)]' key={`${interval}-${showDrawingToolbar}`} showDrawing={showDrawingToolbar} currency={currency} interval={Number(interval)} />
+      <div un-grid='~ flow-col auto-cols-min gap-x-4 justify-end'>
+        <input un-min-w='60'
           type="text"
           value={currency}
           onChange={event => setCurrency(event.target.value)}
@@ -55,6 +56,14 @@ const Grid = () => {
               onChange={event => setInterval(event.target.value)}
             />
             30
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={showDrawingToolbar}
+              onChange={event => setShowDrawingToolbar(event.target.checked)}
+            />
+            Show Drawing Tool Bar
           </label>
         </form>
       </div>

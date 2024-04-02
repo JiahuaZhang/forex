@@ -3,9 +3,11 @@ import { useEffect, useRef } from 'react';
 type Props = {
   symbol: string;
   interval?: number;
+  showDrawing?: boolean;
+  [key: string]: any;
 };
 
-export const TradingViewWidget = ({ symbol, interval }: Props = { symbol: 'EURUSD', interval: 1 }) => {
+export const TradingViewWidget = ({ symbol, interval, showDrawing, ...rest }: Props = { symbol: 'EURUSD', interval: 1, showDrawing: false }) => {
   const container = useRef<HTMLDivElement>(null);
 
   useEffect(
@@ -24,6 +26,7 @@ export const TradingViewWidget = ({ symbol, interval }: Props = { symbol: 'EURUS
           "style": "1",
           "locale": "zh_CN",
           "allow_symbol_change": true,
+          ${showDrawing ? '"hide_side_toolbar": false,' : ''}
           "withdateranges": true,
           "support_host": "https://www.tradingview.com"
         }`;
@@ -35,7 +38,7 @@ export const TradingViewWidget = ({ symbol, interval }: Props = { symbol: 'EURUS
   );
 
   return (
-    <div un-h='96' >
+    <div  {...rest} >
       <div className="tradingview-widget-container" ref={container}   >
         <div className="tradingview-widget-container__widget" ></div>
       </div>

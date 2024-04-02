@@ -10,21 +10,21 @@ const currencyPairs: Record<string, string[]> = {
   'chf': ['EURCHF', 'USDCHF', 'GBPCHF', 'CHFJPY']
 };
 
-export const CurrencyGrid = ({ currency, interval }: { currency: string; interval: number; }) => {
+export const CurrencyGrid = ({ currency, interval, showDrawing, ...rest }: { currency: string; interval: number; showDrawing: boolean; }) => {
   const pairs = currencyPairs[currency.trim().toLowerCase()];
 
   if (!pairs) {
-    return <div>No currency match for {currency} </div>;
+    return <div {...rest} >No currency match for {currency} </div>;
   }
 
-  return <div un-grid='~ cols-2'>
+  return <div un-grid='~ cols-2' {...rest} >
     <div >
-      <TradingViewWidget symbol={pairs[0]} interval={interval} />
-      <TradingViewWidget symbol={pairs[1]} interval={interval} />
+      <TradingViewWidget un-h='1/2' symbol={pairs[0]} interval={interval} showDrawing={showDrawing} />
+      <TradingViewWidget un-h='1/2' symbol={pairs[1]} interval={interval} showDrawing={showDrawing} />
     </div>
     <div >
-      <TradingViewWidget symbol={pairs[2]} interval={interval} />
-      <TradingViewWidget symbol={pairs[3]} interval={interval} />
+      <TradingViewWidget un-h='1/2' symbol={pairs[2]} interval={interval} showDrawing={showDrawing} />
+      <TradingViewWidget un-h='1/2' symbol={pairs[3]} interval={interval} showDrawing={showDrawing} />
     </div>
   </div>;
 };

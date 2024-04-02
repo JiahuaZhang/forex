@@ -12,7 +12,7 @@ export type ExchangeRate = {
 };
 
 export type ForexValue = {
-  datetime: `${number}-${number}-${number}`;
+  datetime: `${number}-${number}-${number}` | `${number}-${number}-${number} ${number}:${number}:${number}`;
   open: string;
   high: string;
   low: string;
@@ -31,4 +31,5 @@ export type ForexMeta = {
 export type ForexSeries = {
   meta: ForexMeta;
   values: ForexValue[];
+  status: string;
 };
