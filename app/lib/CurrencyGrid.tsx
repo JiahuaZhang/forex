@@ -5,7 +5,7 @@ const currencyPairs: Record<string, string[]> = {
   'gbp': ['EURGBP', 'GBPUSD', 'GBPJPY', 'GBPCHF'],
   'usd': ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF'],
   'jpy': ['EURJPY', 'GBPJPY', 'USDJPY', 'CHFJPY'],
-  'aud': ['EURAUD', 'GBPAUD', 'AUDUSD', 'AUDJPY'],
+  'aud': ['EURAUD', 'GBPAUD', 'USDAUD', 'AUDJPY'],
   'cad': ['EURCAD', 'GBPCAD', 'CADUSD', 'CADJPY'],
   'chf': ['EURCHF', 'USDCHF', 'GBPCHF', 'CHFJPY']
 };
