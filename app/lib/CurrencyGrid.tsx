@@ -1,13 +1,14 @@
 import { TradingViewWidget } from './TradingViewWidget';
 
 const currencyPairs: Record<string, string[]> = {
-  'eur': ['EURUSD', 'EURGBP', 'EURJPY', 'EURCHF'],
-  'gbp': ['EURGBP', 'GBPUSD', 'GBPJPY', 'GBPCHF'],
-  'usd': ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF'],
-  'jpy': ['EURJPY', 'GBPJPY', 'USDJPY', 'CHFJPY'],
-  'aud': ['EURAUD', 'GBPAUD', 'AUDUSD', 'AUDJPY'],
-  'cad': ['EURCAD', 'GBPCAD', 'USDCAD', 'CADJPY'],
-  'chf': ['EURCHF', 'USDCHF', 'GBPCHF', 'CHFJPY']
+  eur: ['EURUSD', 'EURGBP', 'EURJPY', 'EURCHF'],
+  gbp: ['EURGBP', 'GBPUSD', 'GBPJPY', 'GBPCHF'],
+  usd: ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF'],
+  jpy: ['EURJPY', 'GBPJPY', 'USDJPY', 'CHFJPY'],
+  aud: ['EURAUD', 'GBPAUD', 'AUDUSD', 'AUDJPY'],
+  cad: ['EURCAD', 'GBPCAD', 'USDCAD', 'CADJPY'],
+  chf: ['EURCHF', 'USDCHF', 'GBPCHF', 'CHFJPY'],
+  nzd: ['EURNZD', 'GBPNZD', 'NZDUSD', 'NZDJPY']
 };
 
 export const CurrencyGrid = ({ currency, interval, showDrawing, ...rest }: { currency: string; interval: number; showDrawing: boolean; }) => {

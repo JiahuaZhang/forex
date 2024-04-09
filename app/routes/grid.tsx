@@ -51,6 +51,16 @@ const Grid = () => {
             <input
               type="radio"
               name="value"
+              value={15}
+              checked={interval === '15'}
+              onChange={event => setInterval(event.target.value)}
+            />
+            15
+          </label>
+          <label  >
+            <input
+              type="radio"
+              name="value"
               value={30}
               checked={interval === '30'}
               onChange={event => setInterval(event.target.value)}
