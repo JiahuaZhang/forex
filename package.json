@@ -11,13 +11,24 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@iconify-json/ci": "^1.1.13",
+    "@iconify-json/ic": "^1.1.17",
     "@remix-run/node": "^2.8.1",
     "@remix-run/react": "^2.8.1",
     "@remix-run/serve": "^2.8.1",
+    "antd": "^5.16.1",
+    "apexcharts": "^3.48.0",
     "bignumber.js": "^9.1.2",
+    "chart.js": "^4.4.2",
+    "chartjs-chart-financial": "^0.2.1",
+    "dayjs": "^1.11.10",
     "isbot": "^4.1.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-apexcharts": "^1.4.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "react-google-charts": "^4.0.1",
+    "remix-utils": "^7.5.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.8.1",

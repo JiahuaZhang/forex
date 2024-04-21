@@ -1,6 +1,6 @@
 import { TradingViewWidget } from './TradingViewWidget';
 
-const currencyPairs: Record<string, string[]> = {
+export const currencyPairs: Record<string, string[]> = {
   eur: ['EURUSD', 'EURGBP', 'EURJPY', 'EURCHF'],
   gbp: ['EURGBP', 'GBPUSD', 'GBPJPY', 'GBPCHF'],
   usd: ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF'],
