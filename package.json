@@ -13,6 +13,8 @@
   "dependencies": {
     "@iconify-json/ci": "^1.1.13",
     "@iconify-json/ic": "^1.1.17",
+    "@iconify-json/line-md": "^1.1.37",
+    "@iconify-json/ph": "^1.1.12",
     "@remix-run/node": "^2.8.1",
     "@remix-run/react": "^2.8.1",
     "@remix-run/serve": "^2.8.1",

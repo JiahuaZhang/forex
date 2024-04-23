@@ -33,3 +33,9 @@ export type ForexSeries = {
   values: ForexValue[];
   status: string;
 };
+
+export type ErrorResponse = {
+  code: number;
+  message: string;
+  status: 'error';
+};

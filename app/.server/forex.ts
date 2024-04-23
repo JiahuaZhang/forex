@@ -1,4 +1,6 @@
+import { ErrorResponse } from '@remix-run/node';
 import dajs from 'dayjs';
+import { TIME_FORMAT } from '~/lib/analysis';
 import { ExchangeRate, ForexPair, ForexSeries, ForexValue } from '~/lib/type';
 
 type Interval = '1min' | '5min' | '15min' | '30min' | '45min' | '1h' | '2h' | '4h' | '1day' | '1week' | '1month';
@@ -39,61 +41,46 @@ export const getForexSeries = async ({ symbol = 'eur/usd', interval = '1min', st
   const response = await fetch(url, {
     headers: { 'Authorization': `apikey ${process.env.TWELVEDATA_API_KEY ?? ''}` }
   });
-  // console.log(response.status, response.statusText);
-
-  return await response.json() as ForexSeries;
+  return await response.json() as (ForexSeries | ErrorResponse);
 };
 
 export const getForexIntervalSeries = (pairs: string[], start: string) => {
   const requests = pairs.map(async (pair, index) => {
+    await new Promise((resolve) => setTimeout(resolve, index * 1000 * 30));
     const values = await getForexInterval(pair, start);
-    console.log('resolved values', values);
-
     return { pair, values };
   });
 
   return requests;
-  // const responses = await Promise.all(requests);
-  // console.log(responses);
-  // return responses;
-
-  // return [];
 };
 
 const getTimeIntervals = (start: string) => {
   const time = dajs(start);
-  // const times: { end: string, interval: Interval; }[] = [
-  //   { end: time.add(1, 'minute').format('YYYY-MM-DD HH:mm:ss'), interval: '1min' },
-  //   { end: time.add(2, 'minute').format('YYYY-MM-DD HH:mm:ss'), interval: '1min' },
-  //   { end: time.add(5, 'minute').format('YYYY-MM-DD HH:mm:ss'), interval: '5min' },
-  //   { end: time.add(15, 'minute').format('YYYY-MM-DD HH:mm:ss'), interval: '15min' },
-  //   { end: time.add(30, 'minute').format('YYYY-MM-DD HH:mm:ss'), interval: '30min' },
-  //   { end: time.add(1, 'hour').format('YYYY-MM-DD HH:mm:ss'), interval: '1h' },
-  //   { end: time.add(2, 'hour').format('YYYY-MM-DD HH:mm:ss'), interval: '2h' },
-  //   { end: time.add(4, 'hour').format('YYYY-MM-DD HH:mm:ss'), interval: '4h' },
-  //   { end: time.add(6, 'hour').format('YYYY-MM-DD HH:mm:ss'), interval: '2h' },
-  // ];
   const times: { end: string, interval: Interval; }[] = [
-    { end: time.add(3, 'minute').format('YYYY-MM-DD HH:mm:ss'), interval: '1min' },
-    { end: time.add(30, 'minute').format('YYYY-MM-DD HH:mm:ss'), interval: '5min' },
-    { end: time.add(6, 'hour').format('YYYY-MM-DD HH:mm:ss'), interval: '1h' },
+    { end: time.add(3, 'minute').format(TIME_FORMAT), interval: '1min' },
+    { end: time.add(30, 'minute').format(TIME_FORMAT), interval: '5min' },
+    { end: time.add(6, 'hour').format(TIME_FORMAT), interval: '1h' },
   ];
 
   return times;
 };
 
-const getForexInterval = async (symbol = 'eur/usd', start: string) => {
+export const getForexInterval = async (symbol = 'eur/usd', start: string) => {
   const times = getTimeIntervals(start);
   const requests = times.map(time => getForexSeries({ symbol, interval: time.interval, start, end: time.end }));
   const responses = await Promise.all(requests);
-  console.log(responses);
 
   return responses.reduce<ForexValue[]>((accumulator, current) => {
-    if (!accumulator.length) {
-      return current.values;
+    if (current.status === 'error') {
+      console.log(symbol, ' error: ', current);
+      return accumulator;
     }
 
-    current.values.pop();
-    return [...current.values, ...accumulator];
+    if (!accumulator.length) {
+      return (current as ForexSeries).values;
+    }
+
+    (current as ForexSeries).values.pop();
+    return [...(current as ForexSeries).values, ...accumulator];
   }, []);
 };
