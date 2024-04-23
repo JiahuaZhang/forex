@@ -60,9 +60,12 @@ const App = () => {
         options={options}
         style={{ width: 200 }}
         onSelect={setCurrency}
-        onSearch={(text) => setOptions(currencies.filter(c => new RegExp(text, 'i').test(c)).map(value => ({ value })))}
+        onSearch={text => {
+          const newOptions = currencies.filter(c => new RegExp(text, 'i').test(c)).map(value => ({ value }));
+          setOptions(newOptions);
+          if (newOptions.length === 1) setCurrency(newOptions[0].value);
+        }}
         placeholder="Currency"
-        value={currency}
       />
       <DatePicker
         // defaultValue={dayjs('2024-04-16 08:30:00')}
