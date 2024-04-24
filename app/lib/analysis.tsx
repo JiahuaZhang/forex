@@ -48,6 +48,13 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
   const extreme_difference = extreme_value.minus(BigNumber(start.open));
   const startTime = dayjs(start.datetime);
 
+  let highest = BigNumber(start.open);
+  let lowest = BigNumber(start.open);
+  for (const value of values) {
+    if (BigNumber(value.high).isGreaterThan(highest)) highest = BigNumber(value.high);
+    if (BigNumber(value.low).isLessThan(lowest)) lowest = BigNumber(value.low);
+  }
+
   const data = values.map((value, index) => {
     const difference = BigNumber(value.open).minus(BigNumber(start.open));
     const change = difference.dividedBy(BigNumber(start.open)).multipliedBy(100);
@@ -55,6 +62,8 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
     const progress = (extreme_difference.minus(peak_difference)).dividedBy(extreme_difference).multipliedBy(100);
     const is_first_extreme = firstExtreme.datetime === value.datetime;
     const trend = index === 0 ? '' : BigNumber(value.open).isGreaterThan(BigNumber(values[index - 1].open)) ? 'up' : 'down';
+    const is_highest = BigNumber(value.high).isEqualTo(highest);
+    const is_lowest = BigNumber(value.low).isEqualTo(lowest);
 
     return {
       ...value,
@@ -64,11 +73,11 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
       peak_difference: peak_difference.toNumber(),
       progress: progress.toNumber(),
       is_first_extreme,
+      is_highest,
+      is_lowest,
       time_difference: getTimeDifference(startTime, dayjs(value.datetime))
     };
   });
-
-  type A = typeof data[number];
 
   const column = [
     {
@@ -92,24 +101,24 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
     {
       title: 'High',
       dataIndex: 'high',
-      render: (value: number) => {
+      render: (value: number, item: typeof data[number]) => {
         if (!isIncreasing) {
-          return value;
+          return `${value} ${item.is_highest ? '🔥' : ''}`;
         }
         return BigNumber(value).isGreaterThanOrEqualTo(extreme_value)
-          ? <span un-bg='blue-600' un-p='2' un-py='1' un-text='white' un-rounded='~' >{value}</span>
+          ? <span un-bg='blue-600' un-p='2' un-py='1' un-text='white' un-rounded='~'  >{value} {item.is_highest ? '🔥' : ''}</span>
           : value;
       }
     },
     {
       title: 'Low',
       dataIndex: 'low',
-      render: (value: number) => {
+      render: (value: number, item: typeof data[number]) => {
         if (isIncreasing) {
-          return value;
+          return `${value} ${item.is_lowest ? '🔥' : ''}`;
         }
         return BigNumber(value).isLessThanOrEqualTo(extreme_value)
-          ? <span un-bg='blue-600' un-p='2' un-py='1' un-text='white' un-rounded='~' >{value}</span>
+          ? <span un-bg='blue-600' un-p='2' un-py='1' un-text='white' un-rounded='~' >{value} {item.is_lowest ? '🔥' : ''} </span>
           : value;
       }
     },
