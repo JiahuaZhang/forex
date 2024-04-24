@@ -134,6 +134,7 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
       title: 'change (%)',
       dataIndex: 'change',
       render: (value: number) => {
+        const UnoTrick = <span un-bg='red-5 purple-5 blue-5 green-4 orange-4' ></span>;
         let bg = '';
         if (Math.abs(value) >= 0.5) {
           bg = 'red-5';

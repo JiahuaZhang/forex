@@ -46,7 +46,7 @@ const App = () => {
     {data.map(d => <div key={d.symbol} un-mb='4' >
       <h1 un-text='lg' un-grid='~ justify-around' un-grid-flow='col' un-m='0'>
         <section un-text={d.isIncreasing ? 'green-6' : 'red-6'} un-grid='~' un-grid-flow='col' un-gap='2' un-items='center' >
-          {d.symbol} <div className={`i-ph:trend-${d.isIncreasing ? 'up' : 'down'}`} ></div>
+          {d.symbol} <div className={`${d.isIncreasing ? 'i-ph:trend-up' : 'i-ph:trend-down'}`} ></div>
         </section>
         <section un-text={d.isAppreciated ? 'green-6' : 'red-6'} un-grid='~' un-grid-flow='col' un-gap='2' un-items='center'>
           <div className={`i-ph:trend-${d.isAppreciated ? 'up' : 'down'}`} ></div> {d.currency}
