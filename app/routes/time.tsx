@@ -22,8 +22,7 @@ const App = () => {
   const fetcher = useFetcher<typeof action>();
   const [currency, setCurrency] = useState('');
   const [options, setOptions] = useState<{ value: string; }[]>(currencies.map(value => ({ value })));
-  // const [startTime, setStartTime] = useState(dayjs().startOf('day').format(TIME_FORMAT));
-  const [startTime, setStartTime] = useState(dayjs('2024-04-24 08:30:00').format(TIME_FORMAT));
+  const [startTime, setStartTime] = useState(dayjs().startOf('day').format(TIME_FORMAT));
   const [data, setData] = useState<ReturnType<typeof firstMinuteAnalysis>[]>([]);
   const submit = () => {
     if (!currency) return;
@@ -40,7 +39,7 @@ const App = () => {
   }, [fetcher.data]);
 
   // useEffect(() => {
-  //   setData(pairs.map(p => firstMinuteAnalysis(currency, p.pair as any, p.values as any)));
+  //   setData(pairs.map(p => firstMinuteAnalysis('cad', p.pair as any, p.values as any)));
   // }, []);
 
   return <div>
