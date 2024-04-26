@@ -1,8 +1,8 @@
+import { Tooltip } from 'antd';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { ForexValue } from './type';
-import { Tooltip } from 'antd';
 
 dayjs.extend(duration);
 
@@ -24,28 +24,28 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
     ? (isIncreasing ? true : false)
     : (isIncreasing ? false : true);
 
-  let firstExtreme = start;
-  let extreme_value = BigNumber(start.open);
+  let peak = start;
+  let peak_value = BigNumber(start.open);
   if (isIncreasing) {
     for (const value of values) {
-      if (BigNumber(value.high).isGreaterThanOrEqualTo(extreme_value)) {
-        firstExtreme = value;
-        extreme_value = BigNumber(value.high);
+      if (BigNumber(value.high).isGreaterThanOrEqualTo(peak_value)) {
+        peak = value;
+        peak_value = BigNumber(value.high);
       } else {
         break;
       }
     }
   } else {
     for (const value of values) {
-      if (BigNumber(value.low).isLessThanOrEqualTo(extreme_value)) {
-        firstExtreme = value;
-        extreme_value = BigNumber(value.low);
+      if (BigNumber(value.low).isLessThanOrEqualTo(peak_value)) {
+        peak = value;
+        peak_value = BigNumber(value.low);
       } else {
         break;
       }
     }
   }
-  const extreme_difference = extreme_value.minus(BigNumber(start.open));
+  const peak_start_difference = peak_value.minus(BigNumber(start.open));
   const startTime = dayjs(start.datetime);
 
   let highest = BigNumber(start.open);
@@ -58,9 +58,9 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
   const data = values.map((value, index) => {
     const difference = BigNumber(value.open).minus(BigNumber(start.open));
     const change = difference.dividedBy(BigNumber(start.open)).multipliedBy(100);
-    const peak_difference = extreme_value.minus(BigNumber(value.open));
-    const progress = (extreme_difference.minus(peak_difference)).dividedBy(extreme_difference).multipliedBy(100);
-    const is_first_extreme = firstExtreme.datetime === value.datetime;
+    const peak_difference = peak_value.minus(BigNumber(value.open));
+    const peak_progress = difference.dividedBy(peak_start_difference).multipliedBy(100);
+    const is_peak = peak.datetime === value.datetime;
     const trend = index === 0 ? '' : BigNumber(value.open).isGreaterThan(BigNumber(values[index - 1].open)) ? 'up' : 'down';
     const is_highest = BigNumber(value.high).isEqualTo(highest);
     const is_lowest = BigNumber(value.low).isEqualTo(lowest);
@@ -71,13 +71,18 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
       difference: difference.toNumber(),
       change: change.toNumber(),
       peak_difference: peak_difference.toNumber(),
-      progress: progress.toNumber(),
-      is_first_extreme,
+      peak_progress: peak_progress.toNumber(),
+      is_peak,
       is_highest,
       is_lowest,
       time_difference: getTimeDifference(startTime, dayjs(value.datetime))
     };
   });
+
+  const extreme_difference = isIncreasing ? highest.minus(BigNumber(start.open)) : lowest.minus(BigNumber(start.open));
+  const first_min_extreme_progress = BigNumber(data[1].difference).dividedBy(extreme_difference).multipliedBy(100).toNumber();
+  const peak_change = peak_start_difference.dividedBy(BigNumber(start.open)).multipliedBy(100).toNumber();
+  const extreme_change = extreme_difference.dividedBy(BigNumber(start.open)).multipliedBy(100).toNumber();
 
   const column = [
     {
@@ -105,7 +110,7 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
         if (!isIncreasing) {
           return `${value} ${item.is_highest ? '🔥' : ''}`;
         }
-        return BigNumber(value).isGreaterThanOrEqualTo(extreme_value)
+        return BigNumber(value).isGreaterThanOrEqualTo(peak_value)
           ? <span un-bg='blue-600' un-p='2' un-py='1' un-text='white' un-rounded='~'  >{value} {item.is_highest ? '🔥' : ''}</span>
           : value;
       }
@@ -117,7 +122,7 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
         if (isIncreasing) {
           return `${value} ${item.is_lowest ? '🔥' : ''}`;
         }
-        return BigNumber(value).isLessThanOrEqualTo(extreme_value)
+        return BigNumber(value).isLessThanOrEqualTo(peak_value)
           ? <span un-bg='blue-600' un-p='2' un-py='1' un-text='white' un-rounded='~' >{value} {item.is_lowest ? '🔥' : ''} </span>
           : value;
       }
@@ -160,12 +165,12 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
       }
     },
     {
-      title: 'peak_difference',
+      title: 'peak difference',
       dataIndex: 'peak_difference',
     },
     {
-      title: 'progress (%)',
-      dataIndex: 'progress',
+      title: 'peak progress (%)',
+      dataIndex: 'peak_progress',
       render: (value: number) => {
         return <Tooltip title={value} >
           {value >= 90
@@ -175,8 +180,8 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
       }
     },
     {
-      title: 'is_first_extreme',
-      dataIndex: 'is_first_extreme',
+      title: 'is_peak',
+      dataIndex: 'is_peak',
       render: (value: boolean) => {
         return value ? <span un-bg='green-600' un-p='2' un-py='1' un-text='white' un-rounded='~' >Yes</span> : 'No';
       }
@@ -186,11 +191,20 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
   return {
     isIncreasing,
     isAppreciated,
-    column,
     currency,
     symbol,
+    column,
     data,
-    extreme_difference: extreme_difference.toNumber()
+    highest: highest.toNumber(),
+    lowest: lowest.toNumber(),
+    start_value: BigNumber(start.open).toNumber(),
+    first_min_value: BigNumber(firstMinute.open).toNumber(),
+    peak_value: peak_value.toNumber(),
+    first_min_peak_progress: data[1].peak_progress,
+    first_min_extreme_progress,
+    peak_change,
+    extreme_change,
+    first_min_change: data[1].change,
   };
 
 };
