@@ -60,12 +60,12 @@ const App = () => {
             <Statistic title='start' value={d.start_value} />
             <Statistic title='first minute' value={d.first_min_value} />
             <Statistic title='peak' value={d.peak_value} />
-            <Statistic title='closes' value={d.isIncreasing ? d.closest.high : d.closest.low} />
+            <Statistic title='closes' value={d.isIncreasing ? d.closest.high : d.closest.low} valueStyle={{ color: 'red' }} />
           </div>
           <div un-grid='~' un-grid-flow='col' un-justify='start' un-gap='14'>
             <Statistic title='first minute change' value={d.first_min_change} suffix='%' />
             <Statistic title='peak change' value={d.peak_change} suffix='%' />
-            <Statistic title='closes change' value={d.closest.change} suffix='%' />
+            <Statistic title='closes change' value={d.closest.change} suffix='%' valueStyle={{ color: 'red' }} />
           </div>
           <Tooltip title='cloest value relative to first minute extreme progress' >
             <Progress percent={d.closest_progress} format={percent => `${percent?.toFixed(4)}%`} strokeColor='red' />
