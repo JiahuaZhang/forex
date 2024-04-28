@@ -75,6 +75,7 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
       is_peak,
       is_highest,
       is_lowest,
+      is_closest: false,
       time_difference: getTimeDifference(startTime, dayjs(value.datetime))
     };
   });
@@ -83,6 +84,45 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
   const first_min_extreme_progress = BigNumber(data[1].difference).dividedBy(extreme_difference).multipliedBy(100).toNumber();
   const peak_change = peak_start_difference.dividedBy(BigNumber(start.open)).multipliedBy(100).toNumber();
   const extreme_change = extreme_difference.dividedBy(BigNumber(start.open)).multipliedBy(100).toNumber();
+
+  const isFail = !data[0].is_peak
+    ? false : isIncreasing ? peak_value.isEqualTo(highest) : peak_value.isEqualTo(lowest);
+  let closest = data[1];
+  let closest_progress = 0;
+  if (isFail) {
+    if (isIncreasing) {
+      for (let index = 2; index < data.length; index++) {
+        if (BigNumber(data[index].high).isGreaterThanOrEqualTo(BigNumber(closest.high))) {
+          closest = data[index];
+        }
+      }
+    } else {
+      for (let index = 2; index < data.length; index++) {
+        if (BigNumber(data[index].low).isLessThanOrEqualTo(BigNumber(closest.low))) {
+          closest = data[index];
+        }
+      }
+    }
+    for (let index = 2; index < data.length; index++) {
+      if (data[index].datetime === closest.datetime) {
+        data[index].is_closest = true;
+        break;
+      }
+    }
+
+    if (isIncreasing) {
+      closest_progress = BigNumber(closest.high)
+        .minus(BigNumber(start.open))
+        .dividedBy(BigNumber(data[0].high).minus(BigNumber(start.open)))
+        .multipliedBy(100)
+        .toNumber();
+    } else {
+      closest_progress = BigNumber(closest.low)
+        .minus(BigNumber(start.open))
+        .dividedBy(BigNumber(data[0].low).minus(BigNumber(start.open)))
+        .multipliedBy(100).toNumber();
+    }
+  }
 
   const column = [
     {
@@ -112,7 +152,7 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
         }
         return BigNumber(value).isGreaterThanOrEqualTo(peak_value)
           ? <span un-bg='blue-600' un-p='2' un-py='1' un-text='white' un-rounded='~'  >{value} {item.is_highest ? '🔥' : ''}</span>
-          : value;
+          : item.is_closest ? <span un-border='2 red-6 solid' un-p='1' un-rounded='~' >🏳️{value}</span> : value;
       }
     },
     {
@@ -124,7 +164,7 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
         }
         return BigNumber(value).isLessThanOrEqualTo(peak_value)
           ? <span un-bg='blue-600' un-p='2' un-py='1' un-text='white' un-rounded='~' >{value} {item.is_lowest ? '🔥' : ''} </span>
-          : value;
+          : item.is_closest ? <span un-border='2 red-6 solid' un-p='1' un-rounded='~' >🏳️{value}</span> : value;
       }
     },
     {
@@ -191,6 +231,7 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
   return {
     isIncreasing,
     isAppreciated,
+    isFail,
     currency,
     symbol,
     column,
@@ -205,6 +246,8 @@ export const firstMinuteAnalysis = (currency: string, symbol: `${string}/${strin
     peak_change,
     extreme_change,
     first_min_change: data[1].change,
+    closest,
+    closest_progress
   };
 
 };
