@@ -1,7 +1,6 @@
-import { ErrorResponse } from '@remix-run/node';
 import dajs from 'dayjs';
 import { TIME_FORMAT } from '~/lib/analysis';
-import { ExchangeRate, ForexPair, ForexSeries, ForexValue } from '~/lib/type';
+import { ErrorResponse, ExchangeRate, ForexPair, ForexSeries, ForexValue } from '~/lib/type';
 
 type Interval = '1min' | '5min' | '15min' | '30min' | '45min' | '1h' | '2h' | '4h' | '1day' | '1week' | '1month';
 

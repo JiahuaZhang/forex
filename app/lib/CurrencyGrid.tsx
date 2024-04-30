@@ -11,6 +11,17 @@ export const currencyPairs: Record<string, string[]> = {
   nzd: ['EURNZD', 'GBPNZD', 'NZDUSD', 'NZDJPY']
 };
 
+export const currencyIcons: Record<string, string> = {
+  'eur': 'i-openmoji:flag-european-union',
+  'gbp': 'i-openmoji:flag-united-kingdom',
+  'usd': 'i-openmoji:flag-united-states',
+  'jpy': 'i-openmoji:flag-japan',
+  'aud': 'i-openmoji:flag-australia',
+  'cad': 'i-openmoji:flag-canada',
+  'chf': 'i-openmoji:flag-switzerland',
+  'nzd': 'i-openmoji:flag-new-zealand'
+};
+
 export const CurrencyGrid = ({ currency, interval, showDrawing, ...rest }: { currency: string; interval: number; showDrawing: boolean; }) => {
   const pairs = currencyPairs[currency.trim().toLowerCase()];
 
