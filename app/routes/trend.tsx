@@ -44,7 +44,7 @@ const Trend = () => {
 
   useEffect(() => {
     if (!trendData) return;
-    setEstimate(trendData.values[7].value);
+    setEstimate(trendData.data2[7].value);
   }, [trendData]);
 
   useEffect(() => {
@@ -53,6 +53,8 @@ const Trend = () => {
       console.log(fetcher.data);
       return;
     }
+
+    console.log(fetcher.data);
     setTrendData(trend(fetcher.data as ForexSeries));
   }, [fetcher.data]);
 
@@ -96,13 +98,9 @@ const Trend = () => {
       }
     </div>
     <div un-hidden={`${trendData ? '' : '~'}`} un-mt='2' un-p='2' >
-      <div un-grid='~' un-grid-flow='col' un-justify='start' un-gap='16' un-mb='4'>
-        <Statistic title='start' value={trendData?.start} />
-        <Statistic title='end' value={trendData?.end} />
-        <Statistic title='difference' value={trendData?.difference} />
-        <Statistic title='change (%)' value={trendData?.change} />
-      </div>
-      <Table dataSource={trendData?.values} columns={trendData?.column} pagination={false} size='small' rowKey='percent' />
+      <Table dataSource={trendData?.data1} columns={trendData?.column1} pagination={false} size='small' rowKey='start' />
+      <br />
+      <Table dataSource={trendData?.data2} columns={trendData?.column2} pagination={false} size='small' rowKey='percent' />
       <div un-flex='~' un-m='2' un-mt='8' un-items='center' un-flex-grow='[&>div]:1!' >
         <Slider
           min={1}
@@ -111,16 +109,17 @@ const Trend = () => {
           tooltip={{ open: trendData && true }}
           onChange={value => {
             setEstimate(
-              BigNumber(trendData!.difference)
+              BigNumber(trendData!.data1[0].difference)
                 .dividedBy(value)
                 .multipliedBy(100)
-                .plus(trendData!.start)
+                .plus(trendData!.data1[0].start)
                 .toNumber()
             );
           }}
         />
         <span un-ml='2' un-flex-grow='0' >{estimate}</span>
       </div>
+      {/* reaction panel, type in the price I executed at, to see am I fast? or slow? */}
     </div>
   </>;
 };

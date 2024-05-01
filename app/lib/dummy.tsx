@@ -1,27 +1,27 @@
 export const data = {
   "meta": {
-    "symbol": "USD/JPY",
+    "symbol": "EUR/NZD",
     "interval": "1min",
-    "currency_base": "US Dollar",
-    "currency_quote": "Japanese Yen",
+    "currency_base": "Euro",
+    "currency_quote": "New Zealand Dollar",
     "type": "Physical Currency"
   },
   "values": [
     {
-      "datetime": "2024-04-29 06:31:00",
-      "open": "155.86000",
-      "high": "155.88499",
-      "low": "155.84000",
-      "close": "155.84500",
-      "previous_close": "155.84000"
+      "datetime": "2024-04-30 18:46:00",
+      "open": "1.81510",
+      "high": "1.81560",
+      "low": "1.81492",
+      "close": "1.81560",
+      "previous_close": "1.81530"
     },
     {
-      "datetime": "2024-04-29 06:30:00",
-      "open": "155.82001",
-      "high": "155.84000",
-      "low": "155.81000",
-      "close": "155.84000",
-      "previous_close": "155.81500"
+      "datetime": "2024-04-30 18:45:00",
+      "open": "1.81220",
+      "high": "1.81530",
+      "low": "1.81154",
+      "close": "1.81530",
+      "previous_close": "1.81230"
     }
   ],
   "status": "ok"
