@@ -1,41 +1,26 @@
 import type { MetaFunction } from "@remix-run/node";
+import { Link } from '@remix-run/react';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Forex" },
+    { name: "description", content: "Forex" },
   ];
 };
 
 export default function Index() {
+  const files = import.meta.glob('./**/*.tsx');
+  const routes = Object.keys(files).filter(file => !file.includes('_index.tsx'));
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
+    <ul un-list='none' un-mt='8' un-grid='~' un-gap='4' >
+      {routes.map(route => (
+        <li key={route}>
+          <Link to={route.replace(/^\.\//, '').replace(/\.tsx$/, '')}>
+            {route.replace(/^\.\//, '').replace(/\.tsx$/, '')}
+          </Link>
         </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
-    </div>
+      ))}
+    </ul>
   );
 }
