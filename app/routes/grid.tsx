@@ -1,5 +1,9 @@
+import { Select } from 'antd';
 import { useEffect, useState } from 'react';
-import { CurrencyGrid } from '~/lib/CurrencyGrid';
+import { CurrencyGrid, currencyIcons, currencyPairs } from '~/lib/CurrencyGrid';
+
+const currencies = Object.keys(currencyPairs);
+const currencyOptions = currencies.map(value => ({ value, label: value }));
 
 const Grid = () => {
   const [currency, setCurrency] = useState('');
@@ -27,14 +31,28 @@ const Grid = () => {
   }, [currency]);
 
   return (
-    <div un-h='[calc(100vh-16px)]' >
-      <CurrencyGrid un-h='[calc(100%-21px)]' key={`${interval}-${showDrawingToolbar}`} showDrawing={showDrawingToolbar} currency={currency} interval={Number(interval)} />
-      <div un-grid='~ flow-col auto-cols-min gap-x-4 justify-end'>
-        <input un-min-w='60'
-          type="text"
+    <div un-h='[calc(100vh-4px)]' >
+      <style>
+        {
+          `body {
+            margin: 0;
+          }`
+        }
+      </style>
+      <div un-grid='~ flow-col auto-cols-min gap-x-4 items-center' un-m='1'>
+        <Select un-w='40'
+          options={currencyOptions}
+          onChange={setCurrency}
           value={currency}
-          onChange={event => setCurrency(event.target.value)}
-          placeholder="Enter currency code (e.g., USD, EUR)"
+          labelRender={label => <div un-flex='~' un-items='center' >
+            <div className={`${currencyIcons[label.value]}`} un-mr='2'></div>
+            {label.label}
+          </div>}
+          optionRender={option => <div un-flex='~' un-items='center' >
+            <div className={`${currencyIcons[option.value!]}`} un-mr='2'></div>
+            {option.label}
+          </div>}
+          size='small'
         />
         <form un-grid='~ flow-col auto-cols-max gap-x-4' >
           <label  >
@@ -77,8 +95,12 @@ const Grid = () => {
           </label>
         </form>
       </div>
+      <CurrencyGrid un-h='[calc(100%-28px)]'
+        key={`${currency}-${interval}-${showDrawingToolbar}`}
+        showDrawing={showDrawingToolbar}
+        currency={currency}
+        interval={Number(interval)} />
     </div>
-
   );
 };
 
