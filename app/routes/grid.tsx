@@ -44,6 +44,7 @@ const Grid = () => {
           options={currencyOptions}
           onChange={setCurrency}
           value={currency}
+          showSearch
           labelRender={label => <div un-flex='~' un-items='center' >
             <div className={`${currencyIcons[label.value]}`} un-mr='2'></div>
             {label.label}
