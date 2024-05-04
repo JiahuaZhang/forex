@@ -1,6 +1,6 @@
 import { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
-import { DatePicker, Select, Slider, Statistic, Table } from 'antd';
+import { DatePicker, Select, Slider, Table, TimePicker } from 'antd';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -27,7 +27,8 @@ const Trend = () => {
   const [currency, setCurrency] = useState('');
   const [symbol, setSymbol] = useState('');
   const [symbolOptions, setSymbolOptions] = useState<{ value: string, label: string; }[]>([]);
-  const [startTime, setStartTime] = useState(dayjs().startOf('day').format(TIME_FORMAT));
+  const [day, setDay] = useState(dayjs().startOf('day'));
+  const [time, setTime] = useState(dayjs().startOf('day'));
   const [trendData, setTrendData] = useState<ReturnType<typeof trend>>();
   const [estimate, setEstimate] = useState(0);
 
@@ -84,15 +85,22 @@ const Trend = () => {
         value={symbol}
         onChange={setSymbol} />
       <DatePicker
-        showTime
-        value={dayjs(startTime)}
-        onChange={(_, dateString) => dateString && setStartTime(dateString as string)}
+        value={day}
+        onChange={setDay}
+        disabledDate={d => d.day() === 6 || d > dayjs().endOf('day')}
       />
+      <TimePicker value={time}
+        use12Hours
+        minuteStep={15}
+        format='h:mm a'
+        onChange={setTime} />
       {fetcher.state === 'submitting' && <div className="i-line-md:loading-loop" un-text='blue-600' ></div>}
       {
-        currency && symbol && startTime && fetcher.state === 'idle' && <button onClick={() => {
-          fetcher.submit({ symbol, start: startTime }, { method: 'post' });
-        }} un-cursor='pointer' un-bg='transparent' un-border='none' un-text='lg' un-inline='grid' >
+        currency && symbol && fetcher.state === 'idle'
+        && <button
+          un-cursor='pointer' un-bg='transparent' un-border='none' un-text='lg' un-inline='grid'
+          onClick={() => fetcher.submit({ symbol, start: `${day.format('YYYY-MM-DD')} ${time.format('HH:mm:ss')}` }, { method: 'post' })}
+        >
           <div className="i-ic:baseline-check" ></div>
         </button>
       }
