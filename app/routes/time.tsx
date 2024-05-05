@@ -1,15 +1,15 @@
 import { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
-import { DatePicker, Progress, Select, Statistic, Table, Tooltip } from 'antd';
+import { DatePicker, Progress, Select, Statistic, Table, TimePicker, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { getForexIntervalSeries } from '~/.server/forex';
 import { pairs } from '~/data/usd/2024-04-26 08.30.00';
-import { currencyPairs } from '~/lib/CurrencyGrid';
-import { TIME_FORMAT, firstMinuteAnalysis } from '~/lib/analysis';
+import { currencyIcons, currencyPairs } from '~/lib/CurrencyGrid';
+import { firstMinuteAnalysis } from '~/lib/analysis';
 
 const currencies = Object.keys(currencyPairs);
-const options = currencies.map(value => ({ value, label: value }));
+const currencyOptions = currencies.map(value => ({ value, label: value }));
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -22,12 +22,19 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 const App = () => {
   const fetcher = useFetcher<typeof action>();
   const [currency, setCurrency] = useState('');
-  const [startTime, setStartTime] = useState(dayjs().startOf('day').format(TIME_FORMAT));
+  const [day, setDay] = useState(dayjs().startOf('day'));
+  const [time, setTime] = useState(dayjs().startOf('day'));
   const [data, setData] = useState<ReturnType<typeof firstMinuteAnalysis>[]>([]);
   const submit = () => {
     if (!currency) return;
 
-    fetcher.submit({ currency, start: startTime }, { method: 'post' });
+    fetcher.submit({
+      currency,
+      start: `${day.format('YYYY-MM-DD')} ${time.format('HH:mm:ss')}`
+    },
+      {
+        method: 'post'
+      });
   };
 
   useEffect(() => {
@@ -96,16 +103,29 @@ const App = () => {
     </div>)}
     <div un-grid='~ justify-start gap-2 items-center' un-grid-flow='col' >
       <Select un-w='40'
-        autoFocus
         showSearch
-        options={options}
+        options={currencyOptions}
         value={currency}
         onChange={setCurrency}
+        labelRender={label => <div un-flex='~' un-items='center' >
+          <div className={`${currencyIcons[label.value]}`} un-mr='2'></div>
+          {label.label}
+        </div>}
+        optionRender={option => <div un-flex='~' un-items='center' >
+          <div className={`${currencyIcons[option.value!]}`} un-mr='2'></div>
+          {option.label}
+        </div>}
       />
       <DatePicker
-        showTime
-        value={dayjs(startTime)}
-        onChange={(_, dateString) => dateString && setStartTime(dateString as string)}
+        value={day}
+        onChange={setDay}
+        disabledDate={d => d.day() === 6 || d > dayjs().endOf('day')}
+      />
+      <TimePicker value={time}
+        use12Hours
+        minuteStep={15}
+        format='h:mm a'
+        onChange={setTime}
       />
       {fetcher.state === 'submitting' && <div className="i-line-md:loading-loop" un-text='blue-600' ></div>}
       {fetcher.state === 'idle' &&
