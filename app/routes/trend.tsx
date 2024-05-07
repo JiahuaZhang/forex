@@ -1,12 +1,11 @@
 import { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
-import { DatePicker, Select, Slider, Table, TimePicker } from 'antd';
+import { Button, DatePicker, InputNumber, Progress, Select, Slider, Table, TimePicker } from 'antd';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { getForexSeries } from '~/.server/forex';
 import { currencyIcons, currencyPairs } from '~/lib/CurrencyGrid';
-import { TIME_FORMAT } from '~/lib/analysis';
 import { trend } from '~/lib/trend';
 import { ErrorResponse, ForexSeries } from '~/lib/type';
 import { data } from './../data/trend/usd/2024-05-03 10.00.00';
@@ -18,8 +17,45 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const symbol = formData.get('symbol') as string;
   const start = formData.get('start') as string;
-  // const end = dayjs(start).add(1, 'minute').format(TIME_FORMAT);
   return getForexSeries({ symbol: `${symbol.substring(0, 3)}/${symbol.substring(3)}`, interval: '1min', start, end: start });
+};
+
+const ExecutionPanel = ({ execution, is_appreciated, open, high, low, close, remove }: { execution: string, is_appreciated: boolean, open: number, high: number, low: number, close: number; remove: (value: string) => void; }) => {
+  const value = BigNumber(execution);
+  const percent = (start: BigNumber, between: BigNumber, end: BigNumber) => between.minus(start)
+    .dividedBy(
+      end.minus(start)
+    )
+    .multipliedBy(100)
+    .toNumber();
+  let fail = false;
+
+  let content = <></>;
+  if (is_appreciated) {
+    if (BigNumber(close).isGreaterThanOrEqualTo(value)) {
+      content = <Progress percent={percent(BigNumber(open), value, BigNumber(close))} strokeColor='green' un-w='100' />;
+    } else if (BigNumber(high).isGreaterThanOrEqualTo(value)) {
+      content = <Progress percent={percent(BigNumber(open), value, BigNumber(high))} strokeColor='yellow' un-w='100' />;
+    } else {
+      fail = true;
+      content = <Progress percent={percent(BigNumber(open), BigNumber(high), value)} strokeColor='red' un-w='100' />;
+    }
+  } else {
+    if (BigNumber(close).isLessThanOrEqualTo(value)) {
+      content = <Progress percent={percent(BigNumber(open), value, BigNumber(close))} strokeColor='green' un-w='100' />;
+    } else if (BigNumber(low).isLessThanOrEqualTo(value)) {
+      content = <Progress percent={percent(BigNumber(open), value, BigNumber(low))} strokeColor='yellow' un-w='100' />;
+    } else {
+      fail = true;
+      content = <Progress percent={percent(BigNumber(open), BigNumber(low), value)} strokeColor='red' un-w='100' />;
+    }
+  }
+
+  return <div un-grid='~' un-items='center' un-justify='between' un-grid-flow='col' >
+    <span un-text={`${fail ? 'red-5' : ''}`} >{execution}</span>
+    {content}
+    <div className="i-ph:trash" un-hover='text-red-600' un-cursor='pointer' onClick={() => remove(execution)} ></div>
+  </div>;
 };
 
 const Trend = () => {
@@ -31,6 +67,8 @@ const Trend = () => {
   const [time, setTime] = useState(dayjs().startOf('day'));
   const [trendData, setTrendData] = useState<ReturnType<typeof trend>>();
   const [estimate, setEstimate] = useState(0);
+  const [value, setValue] = useState('1');
+  const [executions, setExecutions] = useState<string[]>([]);
 
   useEffect(() => {
     if (!currency) {
@@ -127,7 +165,29 @@ const Trend = () => {
         />
         <span un-ml='2' un-flex-grow='0' >{estimate}</span>
       </div>
-      {/* todo: reaction panel, type in the price I executed at, to see am I fast? or slow? */}
+      <InputNumber value={value}
+        onChange={v => setValue(v as string)}
+        min="0"
+        max="400"
+        step="0.00001"
+        stringMode
+        onKeyDown={e => e.key === 'Enter' && setExecutions(prev => prev.includes(value) ? prev : [...prev, value])}
+      />
+      <Button un-ml='2'
+        type='primary'
+        onClick={() => setExecutions(prev => prev.includes(value) ? prev : [...prev, value])}
+      >+</Button>
+      <div>
+        {executions.map(excution => <ExecutionPanel key={excution}
+          execution={excution}
+          is_appreciated={trendData?.data1[0].is_appreciated!}
+          open={trendData?.data1[0].open!}
+          high={trendData?.data1[0].high!}
+          low={trendData?.data1[0].low!}
+          close={trendData?.data1[0].close!}
+          remove={val => setExecutions(prev => prev.filter(e => e !== val))}
+        />)}
+      </div>
     </div>
   </>;
 };
