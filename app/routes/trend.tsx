@@ -9,7 +9,7 @@ import { currencyIcons, currencyPairs } from '~/lib/CurrencyGrid';
 import { TIME_FORMAT } from '~/lib/analysis';
 import { trend } from '~/lib/trend';
 import { ErrorResponse, ForexSeries } from '~/lib/type';
-import { data } from './../lib/dummy';
+import { data } from './../data/trend/usd/2024-05-03 10.00.00';
 
 const currencies = Object.keys(currencyPairs);
 const currencyOptions = currencies.map(value => ({ value, label: value }));
@@ -18,8 +18,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const symbol = formData.get('symbol') as string;
   const start = formData.get('start') as string;
-  const end = dayjs(start).add(1, 'minute').format(TIME_FORMAT);
-  return getForexSeries({ symbol: `${symbol.substring(0, 3)}/${symbol.substring(3)}`, interval: '1min', start, end });
+  // const end = dayjs(start).add(1, 'minute').format(TIME_FORMAT);
+  return getForexSeries({ symbol: `${symbol.substring(0, 3)}/${symbol.substring(3)}`, interval: '1min', start, end: start });
 };
 
 const Trend = () => {
@@ -106,7 +106,7 @@ const Trend = () => {
       }
     </div>
     <div un-hidden={`${trendData ? '' : '~'}`} un-mt='2' un-p='2' >
-      <Table dataSource={trendData?.data1} columns={trendData?.column1} pagination={false} size='small' rowKey='start' />
+      <Table dataSource={trendData?.data1} columns={trendData?.column1} pagination={false} size='small' rowKey='open' />
       <br />
       <Table dataSource={trendData?.data2} columns={trendData?.column2} pagination={false} size='small' rowKey='percent' />
       <div un-flex='~' un-m='2' un-mt='8' un-items='center' un-flex-grow='[&>div]:1!' >
@@ -120,14 +120,14 @@ const Trend = () => {
               BigNumber(trendData!.data1[0].difference)
                 .dividedBy(value)
                 .multipliedBy(100)
-                .plus(trendData!.data1[0].start)
+                .plus(trendData!.data1[0].open)
                 .toNumber()
             );
           }}
         />
         <span un-ml='2' un-flex-grow='0' >{estimate}</span>
       </div>
-      {/* reaction panel, type in the price I executed at, to see am I fast? or slow? */}
+      {/* todo: reaction panel, type in the price I executed at, to see am I fast? or slow? */}
     </div>
   </>;
 };
