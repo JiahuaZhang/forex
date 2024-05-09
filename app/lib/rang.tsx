@@ -60,13 +60,8 @@ export const range = (data: ForexSeries) => {
   ];
 
   let high5 = BigNumber(values[0].high);
-  let high10 = BigNumber(values[0].high);
-  let high30 = BigNumber(values[0].high);
   let low5 = BigNumber(values[0].low);
-  let low10 = BigNumber(values[0].low);
-  let low30 = BigNumber(values[0].low);
   let index = 0;
-
   for (; index < 5; index++) {
     if (BigNumber(values[index].high).isGreaterThanOrEqualTo(high5)) {
       high5 = BigNumber(values[index].high);
@@ -75,6 +70,8 @@ export const range = (data: ForexSeries) => {
       low5 = BigNumber(values[index].low);
     }
   }
+  let high10 = high5;
+  let low10 = low5;
   for (; index < 10; index++) {
     if (BigNumber(values[index].high).isGreaterThanOrEqualTo(high10)) {
       high10 = BigNumber(values[index].high);
@@ -83,6 +80,8 @@ export const range = (data: ForexSeries) => {
       low10 = BigNumber(values[index].low);
     }
   }
+  let high30 = high10;
+  let low30 = low10;
   for (; index < 30; index++) {
     if (BigNumber(values[index].high).isGreaterThanOrEqualTo(high30)) {
       high30 = BigNumber(values[index].high);
