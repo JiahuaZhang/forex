@@ -83,3 +83,11 @@ export const getForexInterval = async (symbol = 'eur/usd', start: string) => {
     return [...(current as ForexSeries).values, ...accumulator];
   }, []);
 };
+
+export const getDailyForexSeries = async (symbol = 'eur/usd') => {
+  const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&timezone=America/New_York&interval=1day&previous_close=true`;
+  const response = await fetch(url, {
+    headers: { 'Authorization': `apikey ${process.env.TWELVEDATA_API_KEY ?? ''}` }
+  });
+  return await response.json() as (ForexSeries | ErrorResponse);
+};
