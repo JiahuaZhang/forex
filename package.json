@@ -31,8 +31,7 @@
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
     "react-google-charts": "^4.0.1",
-    "recharts": "^2.12.7",
-    "remix-utils": "^7.5.0"
+    "recharts": "^2.12.7"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.8.1",
