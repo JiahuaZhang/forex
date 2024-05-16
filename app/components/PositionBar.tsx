@@ -75,3 +75,15 @@ export const PositionBar = ({ low, high, value }: { low: number, high: number, v
     <span un-text='green-6' >{high}</span>
   </div>;
 };
+
+export const PositionStick = ({ open, close, value }: { open: string, close: string, value: string; }) => {
+  const start = BigNumber(open);
+  const end = BigNumber(close);
+  const between = BigNumber(value);
+
+  if (end.isGreaterThanOrEqualTo(start)) {
+    return <PositionBar low={start.toNumber()} high={end.toNumber()} value={between.toNumber()} />;
+  }
+
+  return <PositionBar low={end.toNumber()} high={start.toNumber()} value={between.toNumber()} />;
+};
