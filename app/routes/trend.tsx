@@ -137,7 +137,7 @@ const Trend = () => {
         currency && symbol && fetcher.state === 'idle'
         && <button
           un-cursor='pointer' un-bg='transparent' un-border='none' un-text='lg' un-inline='grid'
-          onClick={() => fetcher.submit({ symbol, start: `${day.format('YYYY-MM-DD')} ${time.format('HH:mm:ss')}` }, { method: 'post' })}
+          onClick={() => fetcher.submit({ symbol, start: `${day.format('YYYY-MM-DD')} ${time.second(0).format('HH:mm:ss')}` }, { method: 'post' })}
         >
           <div className="i-ic:baseline-check" ></div>
         </button>
