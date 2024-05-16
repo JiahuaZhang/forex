@@ -1,5 +1,6 @@
-import { Button, InputNumber, Table } from 'antd';
-import { useState } from 'react';
+import { Button, InputNumber, Slider, Table } from 'antd';
+import BigNumber from 'bignumber.js';
+import { useEffect, useState } from 'react';
 import { PositionStick } from '~/components/PositionBar';
 import { calc } from '~/lib/calc';
 
@@ -9,6 +10,12 @@ const Calc = () => {
   const [data, setData] = useState<ReturnType<typeof calc>>();
   const [value, setValue] = useState('1');
   const [executions, setExecutions] = useState<string[]>([]);
+  const [estimate, setEstimate] = useState(0);
+
+  useEffect(() => {
+    if (!data) return;
+    setEstimate(data.data2[7].value);
+  }, [data]);
 
   return <div>
     <header un-grid='~ flow-col' un-gap='4' un-justify='start' un-items='center' >
@@ -40,12 +47,31 @@ const Calc = () => {
         </button>
       }
     </header>
-    <section un-mx='6' un-mt='2' >
-      {data && <Table dataSource={data.data} columns={data.column} pagination={false} size='small' />}
-    </section>
-    <section>
-      {
-        data && <div un-mt='4' ><InputNumber value={value}
+    <section un-hidden={data ? '' : '~'} un-mx='6' un-mt='2' un-grid='~' un-gap='2' >
+      <Table dataSource={data?.data1} columns={data?.column1} pagination={false} size='small' />
+      <Table dataSource={data?.data2} columns={data?.column2} pagination={false} size='small' />
+
+      <div un-flex='~' un-m='2' un-mt='8' un-items='center' un-flex-grow='[&>div]:1!' >
+        <Slider
+          min={1}
+          max={99}
+          defaultValue={70}
+          tooltip={{ open: data && true }}
+          onChange={value => {
+            setEstimate(
+              BigNumber(data!.data1[0].difference)
+                .dividedBy(value)
+                .multipliedBy(100)
+                .plus(data!.data1[0].open)
+                .toNumber()
+            );
+          }}
+        />
+        <span un-ml='2' un-flex-grow='0' >{estimate}</span>
+      </div>
+
+      <div un-mt='4' >
+        <InputNumber value={value}
           onChange={v => setValue(v as string)}
           min="0"
           max="400"
@@ -53,12 +79,12 @@ const Calc = () => {
           stringMode
           onKeyDown={e => e.key === 'Enter' && setExecutions(prev => prev.includes(value) ? prev : [...prev, value])}
         />
-          <Button un-ml='2'
-            type='primary'
-            onClick={() => setExecutions(prev => prev.includes(value) ? prev : [...prev, value])}
-          >+</Button>
-        </div>
-      }
+        <Button un-ml='2'
+          type='primary'
+          onClick={() => setExecutions(prev => prev.includes(value) ? prev : [...prev, value])}
+        >+</Button>
+      </div>
+
       <div un-m='2' un-grid='~' un-gap='2' >
         {
           executions.map(excution => <PositionStick open={start} close={end} value={excution} key={excution} />)
