@@ -4,8 +4,8 @@ import { PositionStick } from '~/components/PositionBar';
 import { calc } from '~/lib/calc';
 
 const Calc = () => {
-  const [start, setStart] = useState('1.89422');
-  const [end, setEnd] = useState('1.89494');
+  const [start, setStart] = useState('1');
+  const [end, setEnd] = useState('1');
   const [data, setData] = useState<ReturnType<typeof calc>>();
   const [value, setValue] = useState('1');
   const [executions, setExecutions] = useState<string[]>([]);
