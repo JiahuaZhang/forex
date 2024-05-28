@@ -175,6 +175,58 @@ export type OandaAccountSummary = {
   lastTransactionID: `${number}`;
 };
 
+export type InstrumentType = 'CURRENCY' | 'CFD' | 'METAL';
+
+export type InstrumentCommission = {
+  commission: `${number}`;
+  unitsTraded: `${number}`;
+  minimumCommission: `${number}`;
+};
+
+export type guaranteedStopLossOrderLevelRestriction = {
+  volume: `${number}`;
+  priceRange: `${number}`;
+};
+
+export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+
+export type FinancingDayOfWeek = {
+  dayofWeek: DayOfWeek;
+  daysCharged: number;
+};
+
+export type InstrumentFinancing = {
+  longRate: `${number}`;
+  shortRate: `${number}`;
+  financingDaysOfWeek: FinancingDayOfWeek[];
+};
+
+export type Tag = {
+  type: string;
+  name: string;
+};
+
+export type OandaInstrument = {
+  name: `${string}_${string}`;
+  type: InstrumentType;
+  displayName: string;
+  pipLocation: number;
+  displayPrecision: number;
+  minimumTradeSize: `${number}`;
+  maximumTrailingStopDistance: `${number}`;
+  minimumGuaranteedStopLossDistance: `${number}`;
+  minimumTrailingStopDistance: `${number}`;
+  maximumPositionSize: `${number}`;
+  maximumOrderUnits: `${number}`;
+  marginRate: `${number}`;
+  commission: InstrumentCommission;
+  guaranteedStopLossOrderMode: GuaranteedStopLossOrderMode;
+  guaranteedStopLossOrderExecutionPremium: `${number}`;
+  guaranteedStopLossOrderLevelRestriction: guaranteedStopLossOrderLevelRestriction;
+  financing: InstrumentFinancing;
+  tags: Tag[];
+};
+
 export const getAccounts = async () => {
   const response = await fetch(`${url}/v3/accounts`, {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
@@ -195,6 +247,16 @@ export const getAccountSummary = async (id: string) => {
   });
   return await response.json() as {
     account: OandaAccountSummary;
+    lastTransactionID: `${number}`;
+  };
+};
+
+export const getInstruments = async (id: string) => {
+  const response = await fetch(`${url}/v3/accounts/${id}/instruments`, {
+    headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
+  });
+  return await response.json() as {
+    instruments: OandaInstrument[];
     lastTransactionID: `${number}`;
   };
 };

@@ -15,6 +15,11 @@ const Page = () => {
           summary
         </Link>
       </li>
+      <li>
+        <Link to={'./instruments'} >
+          instruments
+        </Link>
+      </li>
     </ul>
     {JSON.stringify(data, null, 2)}</div>;
 };
