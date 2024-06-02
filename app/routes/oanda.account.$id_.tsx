@@ -6,22 +6,25 @@ export const loader = ({ request, params }: LoaderFunctionArgs) => {
   return getAccount(params.id!);
 };
 
+const links = ['summary', 'instruments', 'changes'];
 const Page = () => {
   const data = useLoaderData<typeof loader>();
   return <div>
     <ul un-list='none' un-mt='8' un-grid='~' un-gap='4'  >
-      <li>
-        <Link to={'./summary'} >
-          summary
-        </Link>
-      </li>
-      <li>
-        <Link to={'./instruments'} >
-          instruments
-        </Link>
-      </li>
+      {
+        links.map(link => (
+          <li key={link}>
+            <Link to={`./${link}`}>
+              {link}
+            </Link>
+          </li>
+        ))
+      }
     </ul>
-    {JSON.stringify(data, null, 2)}</div>;
+    <pre>
+      {JSON.stringify(data, null, 2)}
+    </pre>
+  </div>;
 };
 
 export default Page;
