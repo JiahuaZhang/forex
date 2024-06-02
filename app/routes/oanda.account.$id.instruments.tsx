@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
-import { getInstruments } from '~/.server/oanda';
+import { getInstruments } from '~/.server/oanda/account';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   return getInstruments(params.id!);

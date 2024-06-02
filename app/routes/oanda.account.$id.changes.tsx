@@ -3,7 +3,7 @@ import { useParams } from '@remix-run/react';
 import { Input } from 'antd';
 import { useEffect, useState } from 'react';
 import { useFetcher } from 'react-router-dom';
-import { getAccountChanges } from '~/.server/oanda';
+import { getAccountChanges } from '~/.server/oanda/account';
 
 export const action: ActionFunction = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();

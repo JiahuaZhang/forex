@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
-import { getAccount } from '~/.server/oanda';
+import { getAccount } from '~/.server/oanda/account';
 
 export const loader = ({ request, params }: LoaderFunctionArgs) => {
   return getAccount(params.id!);

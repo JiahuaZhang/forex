@@ -1,9 +1,3 @@
-const url = 'https://api-fxpractice.oanda.com';
-// const url = 'https://api-fxtrade.oanda.com';
-
-const streamUrl = 'https://stream-fxpractice.oanda.com';
-// const streamUrl = 'https://stream-fxtrade.oanda.com';
-
 export type AccountId = `${number}-${number}-${number}-${number}`;
 
 export type OandaAccount = {
@@ -241,60 +235,64 @@ export type ClientConfigureTransaction = {
   marginRate: `${number}`;
 };
 
-export const getAccounts = async () => {
-  const response = await fetch(`${url}/v3/accounts`, {
-    headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
-  });
-  return await response.json() as { accounts: OandaAccount[]; };
+export type DynamicOrderState = {
+  id: `${number}`;
+  trailingStopValue: `${number}`;
+  triggerDistance: `${number}`;
+  isTriggerDistanceExact: boolean;
 };
 
-export const getAccount = async (id: string) => {
-  const response = await fetch(`${url}/v3/accounts/${id}`, {
-    headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
-  });
-  return await response.json() as OandaAccountDetails;
+export type CalculatedTradeState = {
+  id: `${number}`;
+  unrealizedPL: `${number}`;
+  marginUsed: `${number}`;
 };
 
-export const getAccountSummary = async (id: string) => {
-  const response = await fetch(`${url}/v3/accounts/${id}/summary`, {
-    headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
-  });
-  return await response.json() as {
-    account: OandaAccountSummary;
-    lastTransactionID: `${number}`;
-  };
+export type CalculatedPositionState = {
+  instrument: `${string}_${string}`;
+  netUnrealizedPL: `${number}`;
+  longUnrealizedPL: `${number}`;
+  shortUnrealizedPL: `${number}`;
+  marginUsed: `${number}`;
 };
 
-export const getInstruments = async (id: string) => {
-  const response = await fetch(`${url}/v3/accounts/${id}/instruments`, {
-    headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
-  });
-  return await response.json() as {
-    instruments: OandaInstrument[];
-    lastTransactionID: `${number}`;
-  };
+export type AccountChangesState = {
+  unrealizedPL: `${number}`;
+  NAV: `${number}`;
+  marginUsed: `${number}`;
+  marginAvailable: `${number}`;
+  positionValue: `${number}`;
+  marginCloseoutUnrealizedPL: `${number}`;
+  marginCloseoutNAV: `${number}`;
+  marginCloseoutMarginUsed: `${number}`;
+  marginCloseoutPercent: `${number}`;
+  marginCloseoutPositionValue: `${number}`;
+  withdrawalLimit: `${number}`;
+  marginCallMarginUsed: `${number}`;
+  marginCallPercent: `${number}`;
+  balance: `${number}`;
+  pl: `${number}`;
+  resettablePL: `${number}`;
+  financing: `${number}`;
+  commission: `${number}`;
+  dividendAdjustment: `${number}`;
+  guaranteedExecutionFees: `${number}`;
+  marginCallEnterTime: string;
+  marginCallExtensionCount: number;
+  lastMarginCallExtensionTime: string;
+  orders: DynamicOrderState[];
+  trades: CalculatedTradeState[];
+  positions;
 };
 
-export const patchAccountConfiguration = async (id: string, marginRate: number, alias?: string) => {
-  const body = {
-    marginRate,
-    alias
-  };
-
-  const response = await fetch(`${url}/v3/accounts/${id}/configuration`, {
-    method: 'PATCH',
-    headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`, },
-    body: JSON.stringify(body)
-  });
-  return await response.json() as {
-    clientConfigureTransaction: ClientConfigureTransaction;
-    lastTransactionID: `${number}`;
-  };
-};
-
-export const getAccountChanges = async (id: string, sinceTransactionID: string) => {
-  const response = await fetch(`${url}/v3/accounts/${id}/changes?sinceTransactionID=${sinceTransactionID}`, {
-    headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
-  });
-  return await response.json();
+export type AccountChanges = {
+  ordersCreated: Order[];
+  ordersCanceled: Order[];
+  ordersFilled: Order[];
+  ordersTriggered: Order[];
+  tradesOpened: TradeSummary[];
+  tradesReduced: TradeSummary[];
+  tradesClosed: TradeSummary[];
+  positions: Position[];
+  transactions: Transaction[];
 };
