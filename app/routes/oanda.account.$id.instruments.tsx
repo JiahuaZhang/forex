@@ -9,9 +9,9 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 const Page = () => {
   const data = useLoaderData<typeof loader>();
 
-  return <div>
+  return <pre>
     {JSON.stringify(data, null, 2)}
-  </div>;
+  </pre>;
 };
 
 export default Page;
