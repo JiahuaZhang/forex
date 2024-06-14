@@ -11,7 +11,7 @@ export default function Index() {
   const files = import.meta.glob('./**/*.tsx');
   const routes = Object.keys(files).filter(file => !file.includes('_index.tsx'));
   const oandaRoutes = routes.filter(route => route.startsWith('./oanda')).map(route => route.replace('./oanda.', 'oanda/'));
-  const otherRoutes = routes.filter(route => !oandaRoutes.includes(route));
+  const otherRoutes = routes.filter(route => !route.startsWith('./oanda'));
 
   return (
     <ul un-list='none' un-mt='8' un-grid='~' un-gap='4' >
