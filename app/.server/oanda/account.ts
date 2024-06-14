@@ -1,4 +1,4 @@
-import { AccountChanges, AccountChangesState, ClientConfigureTransaction, OandaAccount, OandaAccountDetails, OandaAccountSummary, OandaInstrument } from './type';
+import { Oanda } from './type/type';
 
 const url = 'https://api-fxpractice.oanda.com';
 // const url = 'https://api-fxtrade.oanda.com';
@@ -10,14 +10,14 @@ export const getAccounts = async () => {
   const response = await fetch(`${url}/v3/accounts`, {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
-  return await response.json() as { accounts: OandaAccount[]; };
+  return await response.json() as { accounts: Oanda.AccountProperties[]; };
 };
 
 export const getAccount = async (id: string) => {
   const response = await fetch(`${url}/v3/accounts/${id}`, {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
-  return await response.json() as OandaAccountDetails;
+  return await response.json() as { account: Oanda.Account; lastTransactionID: Oanda.TransactionID; };
 };
 
 export const getAccountSummary = async (id: string) => {
@@ -25,8 +25,8 @@ export const getAccountSummary = async (id: string) => {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
   return await response.json() as {
-    account: OandaAccountSummary;
-    lastTransactionID: `${number}`;
+    account: Oanda.AccountSummary;
+    lastTransactionID: Oanda.TransactionID;
   };
 };
 
@@ -35,8 +35,8 @@ export const getInstruments = async (id: string) => {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
   return await response.json() as {
-    instruments: OandaInstrument[];
-    lastTransactionID: `${number}`;
+    instruments: Oanda.Instrument[];
+    lastTransactionID: Oanda.TransactionID;
   };
 };
 
@@ -52,8 +52,8 @@ export const patchAccountConfiguration = async (id: string, marginRate: number, 
     body: JSON.stringify(body)
   });
   return await response.json() as {
-    clientConfigureTransaction: ClientConfigureTransaction;
-    lastTransactionID: `${number}`;
+    clientConfigureTransaction: Oanda.ClientConfigureTransaction;
+    lastTransactionID: Oanda.TransactionID;
   };
 };
 
@@ -62,8 +62,8 @@ export const getAccountChanges = async (id: string, sinceTransactionID: string) 
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
   return await response.json() as {
-    changes: AccountChanges,
-    state: AccountChangesState,
-    lastTransactionID: `${number}`;
+    changes: Oanda.AccountChanges,
+    state: Oanda.AccountChangesState,
+    lastTransactionID: Oanda.TransactionID;
   };
 };
