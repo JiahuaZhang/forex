@@ -3,7 +3,8 @@ export type DecimalNumber = `${number}`;
 export type AccountUnits = `${number}`;
 
 // https://en.wikipedia.org/wiki/ISO_4217
-export type Currency = string;
+const currencies = ["AUD", "CAD", "CHF", "CNH", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "JPY", "MXN", "NOK", "NZD", "PLN", "SEK", "SGD", "THB", "TRY", "USD", "ZAR"] as const;
+export type Currency = typeof currencies[number];
 
 export type Tag = {
   type: string;
@@ -70,7 +71,7 @@ export type GuaranteedStopLossOrderLevelRestriction = {
 export type Direction = 'LONG' | 'SHORT';
 
 // Can contain any combination of the characters “M” (midpoint candles) “B” (bid candles) and “A” (ask candles).
-export type PricingComponent = string;
+export type PricingComponent = 'M' | 'B' | 'A';
 
 export type ConversionFactor = {
   factor: DecimalNumber;

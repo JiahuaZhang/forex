@@ -1,27 +1,27 @@
 import { Oanda } from './type/type';
 
-const url = 'https://api-fxpractice.oanda.com';
+export const oandaUrl = 'https://api-fxpractice.oanda.com';
 // const url = 'https://api-fxtrade.oanda.com';
 
-const streamUrl = 'https://stream-fxpractice.oanda.com';
+const oandaStreamUrl = 'https://stream-fxpractice.oanda.com';
 // const streamUrl = 'https://stream-fxtrade.oanda.com';
 
 export const getAccounts = async () => {
-  const response = await fetch(`${url}/v3/accounts`, {
+  const response = await fetch(`${oandaUrl}/v3/accounts`, {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
   return await response.json() as { accounts: Oanda.AccountProperties[]; };
 };
 
 export const getAccount = async (id: string) => {
-  const response = await fetch(`${url}/v3/accounts/${id}`, {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${id}`, {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
   return await response.json() as { account: Oanda.Account; lastTransactionID: Oanda.TransactionID; };
 };
 
 export const getAccountSummary = async (id: string) => {
-  const response = await fetch(`${url}/v3/accounts/${id}/summary`, {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${id}/summary`, {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
   return await response.json() as {
@@ -31,7 +31,7 @@ export const getAccountSummary = async (id: string) => {
 };
 
 export const getInstruments = async (id: string) => {
-  const response = await fetch(`${url}/v3/accounts/${id}/instruments`, {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${id}/instruments`, {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
   return await response.json() as {
@@ -46,7 +46,7 @@ export const patchAccountConfiguration = async (id: string, marginRate: number, 
     alias
   };
 
-  const response = await fetch(`${url}/v3/accounts/${id}/configuration`, {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${id}/configuration`, {
     method: 'PATCH',
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`, },
     body: JSON.stringify(body)
@@ -58,7 +58,7 @@ export const patchAccountConfiguration = async (id: string, marginRate: number, 
 };
 
 export const getAccountChanges = async (id: string, sinceTransactionID: string) => {
-  const response = await fetch(`${url}/v3/accounts/${id}/changes?sinceTransactionID=${sinceTransactionID}`, {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${id}/changes?sinceTransactionID=${sinceTransactionID}`, {
     headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}` }
   });
   return await response.json() as {
