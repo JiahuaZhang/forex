@@ -21,11 +21,12 @@ const defaultCandlesProps: CandlesProps = {
   AcceptDatetimeFormat: 'UNIX',
   instrument: 'GBP_USD',
   price: 'M',
-  granularity: 'H1',
+  granularity: 'M15',
+  count: 100
 };
 
-export const getCandles = async ({ AcceptDatetimeFormat = defaultCandlesProps.AcceptDatetimeFormat, instrument, price = defaultCandlesProps.price, granularity = defaultCandlesProps.granularity, count, from, to, smooth, includeFirst, dailyAlignment, alignmentTimezone, weeklyAlignment }: CandlesProps) => {
-  const response = await fetch(`${oandaUrl}/v3/instruments/${instrument}/candles?granularity=${granularity}&price=${price}`, {
+export const getCandles = async ({ AcceptDatetimeFormat = defaultCandlesProps.AcceptDatetimeFormat, instrument, price = defaultCandlesProps.price, granularity = defaultCandlesProps.granularity, count = defaultCandlesProps.count, from, to, smooth, includeFirst, dailyAlignment, alignmentTimezone, weeklyAlignment }: CandlesProps) => {
+  const response = await fetch(`${oandaUrl}/v3/instruments/${instrument}/candles?granularity=${granularity}&price=${price}&count=${count}`, {
     headers: {
       Authorization: `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
       'Accept-Datetime-Format': AcceptDatetimeFormat!

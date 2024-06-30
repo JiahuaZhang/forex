@@ -47,6 +47,12 @@ const useCandleChart = (id: string, currency: Currency, data: ReturnType<typeof 
       //   vertLines: { color: "#444" },
       //   horzLines: { color: "#444" },
       // },
+      localization: {
+        dateFormat: 'yyyy-MM-dd'
+      },
+      timeScale: {
+        timeVisible: true
+      }
     } as ChartOptions;
     const chart = createChart(document.getElementById(id)!, chartOptions);
 
