@@ -1,5 +1,5 @@
 import { oandaUrl } from './account';
-import { Candlestick, CandlestickGranularity, WeeklyAlignment } from './type/instrument';
+import { Candlestick, CandlestickGranularity, OrderBook, WeeklyAlignment } from './type/instrument';
 import { AcceptDatetimeFormat, DateTime, InstrumentName, PricingComponent } from './type/primitives';
 
 type CandlesProps = {
@@ -38,4 +38,19 @@ export const getCandles = async ({ AcceptDatetimeFormat = defaultCandlesProps.Ac
     granularity: CandlestickGranularity;
     candles: Candlestick[];
   };
+};
+
+export const getOrderBook = async (
+  { AcceptDatetimeFormat, instrument, time }
+    : {
+      AcceptDatetimeFormat?: AcceptDatetimeFormat;
+      instrument: InstrumentName;
+      time?: DateTime;
+    }
+) => {
+  const response = await fetch(`${oandaUrl}/v3/instruments/${instrument}/orderBook`, {
+    headers: { Authorization: `Bearer ${process.env.OANDA_API_KEY ?? ''}`, }
+  });
+
+  return await response.json() as { orderBook: OrderBook; };
 };

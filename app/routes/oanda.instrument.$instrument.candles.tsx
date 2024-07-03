@@ -2,7 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Suspense, useEffect } from 'react';
 import { getCandles } from '~/.server/oanda/instrument';
 import { createChart, ChartOptions, ColorType, CrosshairMode, LineStyle, IPriceLine } from 'lightweight-charts';
-import { useLoaderData, useParams } from '@remix-run/react';
+import { Link, useLoaderData, useParams } from '@remix-run/react';
 import { Candlestick } from '~/.server/oanda/type/instrument';
 import { Currency } from '~/.server/oanda/type/primitives';
 
@@ -125,7 +125,11 @@ const Candles = () => {
   const candles = convertCandle(data.candles);
   useCandleChart('container', instrument?.split('_')[1] as Currency, candles);
 
-  return <div id='container' un-h='96' >
+  return <div>
+    <div id='container' un-h='96' />
+    <Link to='../order-book' relative='path'  >
+      Order Book
+    </Link>
   </div>;
 };
 

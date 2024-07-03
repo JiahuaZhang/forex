@@ -31,7 +31,7 @@ export type OrderBook = {
   instrument: InstrumentName;
   time: DateTime;
   price: PriceValue;
-  buckWidth: PriceValue;
+  bucketWidth: PriceValue;
   buckets: OrderBookBucket[];
 };
 
@@ -45,7 +45,7 @@ export type PositionBook = {
   instrument: InstrumentName;
   time: DateTime;
   price: PriceValue;
-  buckWidth: PriceValue;
+  bucketWidth: PriceValue;
   buckets: PositionBookBucket[];
 };
 
