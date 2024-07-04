@@ -127,9 +127,18 @@ const Candles = () => {
 
   return <div>
     <div id='container' un-h='96' />
-    <Link to='../order-book' relative='path'  >
-      Order Book
-    </Link>
+    <ul  >
+      <li un-m='b2' >
+        <Link to='../order-book' relative='path'  >
+          Order Book
+        </Link>
+      </li>
+      <li>
+        <Link to='../position-book' relative='path'  >
+          Position Book
+        </Link>
+      </li>
+    </ul>
   </div>;
 };
 

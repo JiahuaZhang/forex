@@ -51,6 +51,6 @@ export type PositionBook = {
 
 export type PositionBookBucket = {
   price: PriceValue;
-  longCount: number;
-  shortCount: number;
+  longCountPercent: DecimalNumber;
+  shortCountPercent: DecimalNumber;
 };

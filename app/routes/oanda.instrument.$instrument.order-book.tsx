@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from '@remix-run/react';
 import { Descriptions } from 'antd';
 import BigNumber from 'bignumber.js';
 import { Suspense } from 'react';
@@ -19,7 +19,7 @@ const getClosest = (buckets: OrderBookBucket[], price: string, range = 50) => {
 
 const OrderBook = () => {
   const { orderBook } = useLoaderData<typeof loader>();
-  const arr = getClosest(orderBook.buckets, orderBook.price);
+  const data = getClosest(orderBook.buckets, orderBook.price);
 
   return <div>
     <Descriptions column={2} >
@@ -30,7 +30,7 @@ const OrderBook = () => {
       <Descriptions.Item label='bucket width' >{orderBook.bucketWidth}</Descriptions.Item>
     </Descriptions>
 
-    <BarChart data={arr} width={1600} height={600} >
+    <BarChart data={data} width={1600} height={600} >
       <CartesianGrid strokeDasharray="1 1" />
       <XAxis dataKey='price' />
       <YAxis />
@@ -39,6 +39,19 @@ const OrderBook = () => {
       <Bar dataKey='longCountPercent' fill="green" activeBar={<Rectangle fill="purple" stroke="blue" />} />
       <Bar dataKey='shortCountPercent' fill="red" activeBar={<Rectangle fill="yellow" stroke="blue" />} />
     </BarChart>
+
+    <ul>
+      <li un-m='b2' >
+        <Link to='../candles' relative='path'  >
+          Candles
+        </Link>
+      </li>
+      <li>
+        <Link to='../position-book' relative='path'  >
+          Position Book
+        </Link>
+      </li>
+    </ul>
   </div>;
 };
 
