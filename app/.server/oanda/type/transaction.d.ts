@@ -725,11 +725,11 @@ export type ClientExtensions = {
 
 export type StopLossDetails = {
   price: PriceValue;
-  distance: DecimalNumber;
-  timeInForce: TimeInForce;
-  gtdTime: DateTime;
-  clientExtensions: ClientExtensions;
-  guaranteed: boolean;
+  distance?: DecimalNumber;
+  timeInForce?: TimeInForce;
+  gtdTime?: DateTime;
+  clientExtensions?: ClientExtensions;
+  guaranteed?: boolean;
 };
 
 export type GuaranteedStopLossDetails = {

@@ -8,7 +8,8 @@
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "test": "vitest"
   },
   "dependencies": {
     "@iconify-json/ci": "^1.1.13",
@@ -16,9 +17,9 @@
     "@iconify-json/line-md": "^1.1.37",
     "@iconify-json/openmoji": "^1.1.51",
     "@iconify-json/ph": "^1.1.12",
-    "@remix-run/node": "^2.8.1",
-    "@remix-run/react": "^2.8.1",
-    "@remix-run/serve": "^2.8.1",
+    "@remix-run/node": "2.10.2",
+    "@remix-run/react": "2.10.2",
+    "@remix-run/serve": "2.10.2",
     "antd": "^5.16.1",
     "bignumber.js": "^9.1.2",
     "dayjs": "^1.11.10",
@@ -29,7 +30,7 @@
     "recharts": "^2.12.7"
   },
   "devDependencies": {
-    "@remix-run/dev": "^2.8.1",
+    "@remix-run/dev": "2.10.2",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
@@ -43,7 +44,8 @@
     "typescript": "^5.1.6",
     "unocss": "^0.58.7",
     "vite": "^5.1.0",
-    "vite-tsconfig-paths": "^4.2.1"
+    "vite-tsconfig-paths": "^4.2.1",
+    "vitest": "^1.6.0"
   },
   "engines": {
     "node": ">=18.0.0"

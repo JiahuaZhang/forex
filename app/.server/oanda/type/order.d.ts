@@ -8,6 +8,13 @@ export type Order = {
   createTime: DateTime;
   state: OrderState;
   clientExtensions: ClientExtensions;
+  type?: OrderType;
+  tradeID?: TradeID;
+  price?: PriceValue;
+  timeInForce?: TimeInForce;
+  triggerCondition?: OrderTriggerCondition;
+  triggerMode?: string;
+  state?: OrderState;
 };
 
 export type OrderState = 'PENDING' | 'FILLED' | 'TRIGGERED' | 'CANCELLED';
@@ -256,18 +263,18 @@ export type TrailingStopLossOrder = {
 };
 
 export type MarketOrderRequest = {
-  type: OrderType;
+  type: OrderType = 'MARKET';
   instrument: InstrumentName;
   units: DecimalNumber;
-  timeInForce?: TimeInForce;
-  priceBound: PriceValue;
-  positionFill: OrderPositionFill;
-  clientExtensions: ClientExtensions;
-  takeProfitOnFill: TakeProfitDetails;
-  stopLossOnFill: StopLossDetails;
-  guaranteedStopLossOnFill: GuaranteedStopLossDetails;
-  trailingStopLossOnFill: TrailingStopLossDetails;
-  tradeClientExtensions: ClientExtensions;
+  timeInForce: TimeInForce = 'FOK';
+  priceBound?: PriceValue;
+  positionFill: OrderPositionFill = 'DEFAULT';
+  clientExtensions?: ClientExtensions;
+  takeProfitOnFill?: TakeProfitDetails;
+  stopLossOnFill?: StopLossDetails;
+  guaranteedStopLossOnFill?: GuaranteedStopLossDetails;
+  trailingStopLossOnFill?: TrailingStopLossDetails;
+  tradeClientExtensions?: ClientExtensions;
 };
 
 export type LimitOrderRequest = {
@@ -276,15 +283,15 @@ export type LimitOrderRequest = {
   units: DecimalNumber;
   price: PriceValue;
   timeInForce: TimeInForce;
-  gtdTime: DateTime;
-  positionFill: OrderPositionFill;
-  triggerCondition: OrderTriggerCondition;
-  clientExtensions: ClientExtensions;
-  takeProfitOnFill: TakeProfitDetails;
-  stopLossOnFill: StopLossDetails;
-  guaranteedStopLossOnFill: GuaranteedStopLossDetails;
-  trailingStopLossOnFill: TrailingStopLossDetails;
-  tradeClientExtensions: ClientExtensions;
+  gtdTime?: DateTime;
+  positionFill?: OrderPositionFill;
+  triggerCondition?: OrderTriggerCondition;
+  clientExtensions?: ClientExtensions;
+  takeProfitOnFill?: TakeProfitDetails;
+  stopLossOnFill?: StopLossDetails;
+  guaranteedStopLossOnFill?: GuaranteedStopLossDetails;
+  trailingStopLossOnFill?: TrailingStopLossDetails;
+  tradeClientExtensions?: ClientExtensions;
 };
 
 export type StopOrderRequest = {
@@ -306,32 +313,32 @@ export type StopOrderRequest = {
 };
 
 export type MarketIfTouchedOrderRequest = {
-  type: OrderType;
+  type: OrderType = 'MARKET_IF_TOUCHED';
   instrument: InstrumentName;
   units: DecimalNumber;
   price: PriceValue;
-  priceBound: PriceValue;
+  priceBound?: PriceValue;
   timeInForce: TimeInForce;
-  gtdTime: DateTime;
-  positionFill: OrderPositionFill;
-  triggerCondition: OrderTriggerCondition;
-  clientExtensions: ClientExtensions;
-  takeProfitOnFill: TakeProfitDetails;
-  stopLossOnFill: StopLossDetails;
-  guaranteedStopLossOnFill: GuaranteedStopLossDetails;
-  trailingStopLossOnFill: TrailingStopLossDetails;
-  tradeClientExtensions: ClientExtensions;
+  gtdTime?: DateTime;
+  positionFill?: OrderPositionFill;
+  triggerCondition?: OrderTriggerCondition;
+  clientExtensions?: ClientExtensions;
+  takeProfitOnFill?: TakeProfitDetails;
+  stopLossOnFill?: StopLossDetails;
+  guaranteedStopLossOnFill?: GuaranteedStopLossDetails;
+  trailingStopLossOnFill?: TrailingStopLossDetails;
+  tradeClientExtensions?: ClientExtensions;
 };
 
 export type TakeProfitOrderRequest = {
   type: OrderType;
   tradeID: TradeID;
-  clientTradeID: ClientID;
+  clientTradeID?: ClientID;
   price: PriceValue;
   timeInForce: TimeInForce;
-  gtdTime: DateTime;
-  triggerCondition: OrderTriggerCondition;
-  clientExtensions: ClientExtensions;
+  gtdTime?: DateTime;
+  triggerCondition?: OrderTriggerCondition;
+  clientExtensions?: ClientExtensions;
 };
 
 export type StopLossOrderRequest = {
@@ -386,6 +393,15 @@ export type OrderIdentifier = {
 
 export type OrderSpecifier = string;
 
+/**
+ * Represents the time in force for an order.
+ * 
+ * - GTC: Good Till Cancelled
+ * - GTD: Good Till Date
+ * - GFD: Good For Day
+ * - FOK: Filled Or Killed
+ * - IOC: Immediately partially filled Or Cancelled
+ */
 export type TimeInForce = 'GTC' | 'GTD' | 'GFD' | 'FOK' | 'IOC';
 
 export type OrderPositionFill = 'OPEN_ONLY' | 'REDUCE_FIRST' | 'REDUCE_ONLY' | 'DEFAULT';

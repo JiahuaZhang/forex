@@ -66,9 +66,9 @@ export type CalculatedTradeState = {
 
 export type TakeProfitDetails = {
   price: PriceValue;
-  timeInForce: TimeInForce;
-  gtdTime: DateTime;
-  clientExtensions: ClientExtensions;
+  timeInForce?: TimeInForce;
+  gtdTime?: DateTime;
+  clientExtensions?: ClientExtensions;
 };
 
 export type TradePL = 'POSITIVE' | 'NEGATIVE' | 'ZERO';
