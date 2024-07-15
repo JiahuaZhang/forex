@@ -1,10 +1,11 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { Link } from '@remix-run/react';
 import { Descriptions, Popover } from 'antd';
 import { useLoaderData } from 'react-router';
 import { getOrders } from '~/.server/oanda/order';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  return getOrders({ id: params.id! });
+  return getOrders({ accountID: params.id! });
 };
 
 const Orders = () => {
@@ -18,7 +19,9 @@ const Orders = () => {
           <Popover content={<pre un-overflow-y='auto' >
             {JSON.stringify(order)}
           </pre>} >
-            {order.id}
+            <Link to={`../${order.id}`} relative='path' >
+              {order.id}
+            </Link>
           </Popover>
         </Descriptions.Item>
         <Descriptions.Item label='time' >{new Date(order.createTime).toLocaleString()}</Descriptions.Item>
