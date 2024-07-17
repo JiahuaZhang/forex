@@ -1,6 +1,6 @@
 import { test } from 'vitest';
-import { createOrder } from './order';
-import { LimitOrderRequest, MarketIfTouchedOrder, MarketIfTouchedOrderRequest, MarketOrderRequest, TakeProfitOrderRequest } from './type/order';
+import { createOrder, updateOrder } from './order';
+import { LimitOrderRequest, MarketIfTouchedOrder, MarketIfTouchedOrderRequest, MarketOrderRequest, TakeProfitOrder, TakeProfitOrderRequest } from './type/order';
 
 const ID = '101-001-27063409-001';
 
@@ -235,4 +235,53 @@ test('create market if touched order with client extensions', async () => {
 //   },
 //   relatedTransactionIDs: [ '259' ],
 //   lastTransactionID: '259'
+// }
+
+test('update order', async () => {
+  const order: TakeProfitOrderRequest = {
+    timeInForce: 'GTC',
+    price: '7.3123',
+    type: 'TAKE_PROFIT',
+    tradeID: '255'
+  };
+
+  const response = await updateOrder({
+    accountID: ID,
+    orderSpecifier: '256',
+    order
+  });
+  console.log(response);
+});
+
+// {
+//   orderCancelTransaction: {
+//     id: '271',
+//     accountID: '101-001-27063409-001',
+//     userID: 27063409,
+//     batchID: '271',
+//     requestID: '79276727735684553',
+//     time: '2024-07-17T00:19:58.535720109Z',
+//     type: 'ORDER_CANCEL',
+//     orderID: '256',
+//     replacedByOrderID: '272',
+//     reason: 'CLIENT_REQUEST_REPLACED'
+//   },
+//   orderCreateTransaction: {
+//     id: '272',
+//     accountID: '101-001-27063409-001',
+//     userID: 27063409,
+//     batchID: '271',
+//     requestID: '79276727735684553',
+//     time: '2024-07-17T00:19:58.535720109Z',
+//     type: 'TAKE_PROFIT_ORDER',
+//     tradeID: '255',
+//     timeInForce: 'GTC',
+//     triggerCondition: 'DEFAULT',
+//     price: '7.31230',
+//     reason: 'REPLACEMENT',
+//     replacesOrderID: '256',
+//     cancellingTransactionID: '271'
+//   },
+//   relatedTransactionIDs: [ '271', '272' ],
+//   lastTransactionID: '272'
 // }

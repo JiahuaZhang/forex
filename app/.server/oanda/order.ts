@@ -2,9 +2,9 @@ import { oandaUrl } from './account';
 import { AccountID } from './type/account';
 import { GuaranteedStopLossOrderRequest, LimitOrderRequest, MarketIfTouchedOrderRequest, MarketOrderRequest, Order, OrderID, OrderSpecifier, OrderStateFilter, StopLossOrderRequest, StopOrderRequest, TakeProfitOrderRequest, TrailingStopLossOrderRequest } from './type/order';
 import { AcceptDatetimeFormat, InstrumentName } from './type/primitives';
-import { OrderCancelTransaction, OrderFillTransaction, Transaction, TransactionID } from './type/transaction';
+import { ClientRequestID, OrderCancelTransaction, OrderFillTransaction, Transaction, TransactionID } from './type/transaction';
 
-type SuccessOrderRespons = {
+type SuccessOrderResponse = {
   orderCreateTransaction: Transaction;
   orderFillTransaction: OrderFillTransaction;
   orderCancelTransaction: OrderCancelTransaction;
@@ -30,6 +30,18 @@ type NotExistOrderResponse = {
   errorMessage: string;
 };
 
+type SuccessReplaceOrderResponse = SuccessOrderResponse & {
+  replacingOrderCancelTransaction: OrderCancelTransaction;
+};
+
+type NotExistAccountOrOrder = {
+  orderCancelRejectTransaction?: Transaction;
+  relatedTransactionIDs?: TransactionID[];
+  lastTransactionID?: TransactionID;
+  errorCode?: string;
+  errorMessage: string;
+};
+
 export const createOrder = async (id: string, order: MarketOrderRequest | LimitOrderRequest | StopOrderRequest | MarketIfTouchedOrderRequest | TakeProfitOrderRequest | StopLossOrderRequest | GuaranteedStopLossOrderRequest | TrailingStopLossOrderRequest) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${id}/orders`, {
     headers: {
@@ -40,7 +52,7 @@ export const createOrder = async (id: string, order: MarketOrderRequest | LimitO
     body: JSON.stringify({ order })
   });
 
-  return await response.json() as SuccessOrderRespons | InvalidOrderResponse | NotExistOrderResponse;
+  return await response.json() as SuccessOrderResponse | InvalidOrderResponse | NotExistOrderResponse;
 };
 
 export const getOrders = async ({ accountID, acceptDatetimeFormat, ids, state, instrument, count, beforeID }: { accountID: string; acceptDatetimeFormat?: AcceptDatetimeFormat, ids?: OrderID[], state?: OrderStateFilter, instrument?: InstrumentName, count?: number, beforeID?: OrderID; }) => {
@@ -63,7 +75,7 @@ export const getPendingOrders = async ({ acceptDatetimeFormat, accountID }: { ac
   return await response.json() as { orders: Order[]; lastTransactionID: TransactionID; };
 };
 
-export const getOrder = async ({ acceptDatetimeFormat, accountID, orderSpecifier }: { acceptDatetimeFormat?: AcceptDatetimeFormat; accountID?: AccountID; orderSpecifier: OrderSpecifier; }) => {
+export const getOrder = async ({ acceptDatetimeFormat, accountID, orderSpecifier }: { acceptDatetimeFormat?: AcceptDatetimeFormat; accountID: AccountID; orderSpecifier: OrderSpecifier; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/orders/${orderSpecifier}`, {
     headers: {
       'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
@@ -71,4 +83,17 @@ export const getOrder = async ({ acceptDatetimeFormat, accountID, orderSpecifier
   });
 
   return await response.json() as { order: Order, lastTransactionID: TransactionID; };
+};
+
+export const updateOrder = async ({ acceptDatetimeFormat, ClientRequestID, accountID, orderSpecifier, order }: { acceptDatetimeFormat?: AcceptDatetimeFormat; ClientRequestID?: ClientRequestID; accountID: AccountID; orderSpecifier: OrderSpecifier; order: MarketOrderRequest | LimitOrderRequest | StopOrderRequest | MarketIfTouchedOrderRequest | TakeProfitOrderRequest | StopLossOrderRequest | GuaranteedStopLossOrderRequest | TrailingStopLossOrderRequest; }) => {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/orders/${orderSpecifier}`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+      'Content-Type': 'application/json'
+    },
+    method: 'put',
+    body: JSON.stringify({ order })
+  });
+
+  return await response.json() as SuccessReplaceOrderResponse | InvalidOrderResponse | NotExistAccountOrOrder;
 };
