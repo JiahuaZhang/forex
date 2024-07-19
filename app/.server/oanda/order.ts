@@ -2,7 +2,7 @@ import { oandaUrl } from './account';
 import { AccountID } from './type/account';
 import { GuaranteedStopLossOrderRequest, LimitOrderRequest, MarketIfTouchedOrderRequest, MarketOrderRequest, Order, OrderID, OrderSpecifier, OrderStateFilter, StopLossOrderRequest, StopOrderRequest, TakeProfitOrderRequest, TrailingStopLossOrderRequest } from './type/order';
 import { AcceptDatetimeFormat, InstrumentName } from './type/primitives';
-import { ClientRequestID, OrderCancelTransaction, OrderFillTransaction, Transaction, TransactionID } from './type/transaction';
+import { ClientRequestID, OrderCancelRejectTransaction, OrderCancelTransaction, OrderFillTransaction, Transaction, TransactionID } from './type/transaction';
 
 type SuccessOrderResponse = {
   orderCreateTransaction: Transaction;
@@ -34,12 +34,17 @@ type SuccessReplaceOrderResponse = SuccessOrderResponse & {
   replacingOrderCancelTransaction: OrderCancelTransaction;
 };
 
-type NotExistAccountOrOrder = {
+type NotExistAccountOrOrder = Omit<NotExistOrderResponse, 'orderRejectTransaction'> & {
   orderCancelRejectTransaction?: Transaction;
-  relatedTransactionIDs?: TransactionID[];
-  lastTransactionID?: TransactionID;
-  errorCode?: string;
-  errorMessage: string;
+};
+
+type SuccessCancelOrderResponse = Omit<
+  SuccessOrderResponse,
+  'orderCreateTransaction' | 'orderFillTransaction' | 'orderReissueTransaction' | 'orderReissueRejectTransaction'
+>;
+
+type NotExistAccountOrOrderSpecified = Omit<NotExistOrderResponse, 'orderRejectTransaction'> & {
+  orderCancelRejectTransaction: OrderCancelRejectTransaction,
 };
 
 export const createOrder = async (id: string, order: MarketOrderRequest | LimitOrderRequest | StopOrderRequest | MarketIfTouchedOrderRequest | TakeProfitOrderRequest | StopLossOrderRequest | GuaranteedStopLossOrderRequest | TrailingStopLossOrderRequest) => {
@@ -96,4 +101,15 @@ export const updateOrder = async ({ acceptDatetimeFormat, ClientRequestID, accou
   });
 
   return await response.json() as SuccessReplaceOrderResponse | InvalidOrderResponse | NotExistAccountOrOrder;
+};
+
+export const cancelOrder = async ({ accountID, orderSpecifier }: { accountID: AccountID, orderSpecifier: OrderSpecifier; }) => {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/orders/${orderSpecifier}/cancel`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+      'Content-Type': 'application/json'
+    },
+    method: 'put',
+  });
+  return await response.json() as SuccessCancelOrderResponse | NotExistAccountOrOrderSpecified;
 };
