@@ -4,32 +4,80 @@ import { GuaranteedStopLossOrderRequest, LimitOrderRequest, MarketIfTouchedOrder
 import { AcceptDatetimeFormat, InstrumentName } from './type/primitives';
 import { ClientExtensions, ClientRequestID, OrderCancelRejectTransaction, OrderCancelTransaction, OrderClientExtensionsModifyRejectTransaction, OrderClientExtensionsModifyTransaction, OrderFillTransaction, Transaction, TransactionID } from './type/transaction';
 
-namespace OrderResponse {
-  export type Success = {
-    orderCreateTransaction: Transaction;
-    orderFillTransaction: OrderFillTransaction;
-    orderCancelTransaction: OrderCancelTransaction;
-    orderReissueTransaction: Transaction;
-    orderReissueRejectTransaction: Transaction;
-    relatedTransactionIDs: TransactionID[];
-    lastTransactionID: TransactionID;
+namespace Response {
+  export namespace Order {
+    export type Success = {
+      orderCreateTransaction: Transaction;
+      orderFillTransaction: OrderFillTransaction;
+      orderCancelTransaction: OrderCancelTransaction;
+      orderReissueTransaction: Transaction;
+      orderReissueRejectTransaction: Transaction;
+      relatedTransactionIDs: TransactionID[];
+      lastTransactionID: TransactionID;
 
+    };
+    export type Invalid = {
+      orderRejectTransaction: Transaction;
+      relatedTransactionIDs: TransactionID[];
+      lastTransactionID: TransactionID;
+      errorCode: string;
+      errorMessage: string;
+    };
+    export type NotExist = {
+      orderRejectTransaction: Transaction;
+      relatedTransactionIDs: TransactionID[];
+      lastTransactionID: TransactionID;
+      errorCode: string;
+      errorMessage: string;
+    };
   };
-  export type Invalid = {
-    orderRejectTransaction: Transaction;
-    relatedTransactionIDs: TransactionID[];
-    lastTransactionID: TransactionID;
-    errorCode: string;
-    errorMessage: string;
+  export namespace UpdateOrder {
+    export type Success = Response.Order.Success & {
+      replacingOrderCancelTransaction: OrderCancelTransaction;
+    };
+    export type Invalid = {
+      orderRejectTransaction: Transaction;
+      relatedTransactionIDs: TransactionID[];
+      lastTransactionID: TransactionID;
+      errorCode: string;
+      errorMessage: string;
+    };
+    export type NotExist = Omit<Response.Order.NotExist, 'orderRejectTransaction'> & {
+      orderCancelRejectTransaction?: Transaction;
+    };
   };
-  export type NotExist = {
-    orderRejectTransaction: Transaction;
-    relatedTransactionIDs: TransactionID[];
-    lastTransactionID: TransactionID;
-    errorCode: string;
-    errorMessage: string;
+  export namespace CancelOrder {
+    export type Success = Omit<
+      Response.Order.Success,
+      'orderCreateTransaction' | 'orderFillTransaction' | 'orderReissueTransaction' | 'orderReissueRejectTransaction'
+    >;
+    export type NotExist = Omit<Response.Order.NotExist, 'orderRejectTransaction'> & {
+      orderCancelRejectTransaction: OrderCancelRejectTransaction,
+    };
+  };
+  export namespace ClientExtensions {
+    export type Success = {
+      orderClientExtensionsModifyTransaction: OrderClientExtensionsModifyTransaction,
+      lastTransactionID: TransactionID;
+      relatedTransactionIDs: TransactionID[];
+    };
+    export type Invalid = {
+      orderClientExtensionsModifyRejectTransaction?: OrderClientExtensionsModifyRejectTransaction;
+      lastTransactionID?: TransactionID;
+      relatedTransactionIDs?: TransactionID[];
+      errorCode?: string;
+      errorMessage: string;
+    };
+    export type NotExist = {
+      orderClientExtensionsModifyRejectTransaction: OrderClientExtensionsModifyRejectTransaction;
+      lastTransactionID?: TransactionID;
+      relatedTransactionIDs?: TransactionID[];
+      errorCode?: string;
+      errorMessage: string;
+    };
   };
 }
+
 export const createOrder = async (id: string, order: MarketOrderRequest | LimitOrderRequest | StopOrderRequest | MarketIfTouchedOrderRequest | TakeProfitOrderRequest | StopLossOrderRequest | GuaranteedStopLossOrderRequest | TrailingStopLossOrderRequest) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${id}/orders`, {
     headers: {
@@ -40,7 +88,7 @@ export const createOrder = async (id: string, order: MarketOrderRequest | LimitO
     body: JSON.stringify({ order })
   });
 
-  return await response.json() as OrderResponse.Success | OrderResponse.Invalid | OrderResponse.NotExist;
+  return await response.json() as Response.Order.Success | Response.Order.Invalid | Response.Order.NotExist;
 };
 
 export const getOrders = async ({ accountID, acceptDatetimeFormat, ids, state, instrument, count, beforeID }: { accountID: string; acceptDatetimeFormat?: AcceptDatetimeFormat, ids?: OrderID[], state?: OrderStateFilter, instrument?: InstrumentName, count?: number, beforeID?: OrderID; }) => {
@@ -73,21 +121,6 @@ export const getOrder = async ({ acceptDatetimeFormat, accountID, orderSpecifier
   return await response.json() as { order: Order, lastTransactionID: TransactionID; };
 };
 
-namespace UpdateOrderResponse {
-  export type Success = OrderResponse.Success & {
-    replacingOrderCancelTransaction: OrderCancelTransaction;
-  };
-  export type Invalid = {
-    orderRejectTransaction: Transaction;
-    relatedTransactionIDs: TransactionID[];
-    lastTransactionID: TransactionID;
-    errorCode: string;
-    errorMessage: string;
-  };
-  export type NotExist = Omit<OrderResponse.NotExist, 'orderRejectTransaction'> & {
-    orderCancelRejectTransaction?: Transaction;
-  };
-}
 export const updateOrder = async ({ acceptDatetimeFormat, ClientRequestID, accountID, orderSpecifier, order }: { acceptDatetimeFormat?: AcceptDatetimeFormat; ClientRequestID?: ClientRequestID; accountID: AccountID; orderSpecifier: OrderSpecifier; order: MarketOrderRequest | LimitOrderRequest | StopOrderRequest | MarketIfTouchedOrderRequest | TakeProfitOrderRequest | StopLossOrderRequest | GuaranteedStopLossOrderRequest | TrailingStopLossOrderRequest; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/orders/${orderSpecifier}`, {
     headers: {
@@ -98,18 +131,9 @@ export const updateOrder = async ({ acceptDatetimeFormat, ClientRequestID, accou
     body: JSON.stringify({ order })
   });
 
-  return await response.json() as UpdateOrderResponse.Success | UpdateOrderResponse.Invalid | UpdateOrderResponse.NotExist;
+  return await response.json() as Response.UpdateOrder.Success | Response.UpdateOrder.Invalid | Response.UpdateOrder.NotExist;
 };
 
-namespace CancelOrderResponse {
-  export type Success = Omit<
-    OrderResponse.Success,
-    'orderCreateTransaction' | 'orderFillTransaction' | 'orderReissueTransaction' | 'orderReissueRejectTransaction'
-  >;
-  export type NotExist = Omit<OrderResponse.NotExist, 'orderRejectTransaction'> & {
-    orderCancelRejectTransaction: OrderCancelRejectTransaction,
-  };
-}
 export const cancelOrder = async ({ accountID, orderSpecifier }: { accountID: AccountID, orderSpecifier: OrderSpecifier; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/orders/${orderSpecifier}/cancel`, {
     headers: {
@@ -118,30 +142,9 @@ export const cancelOrder = async ({ accountID, orderSpecifier }: { accountID: Ac
     },
     method: 'put',
   });
-  return await response.json() as CancelOrderResponse.Success | CancelOrderResponse.NotExist;
+  return await response.json() as Response.CancelOrder.Success | Response.CancelOrder.NotExist;
 };
 
-namespace ClientExtensionsResponse {
-  export type Success = {
-    orderClientExtensionsModifyTransaction: OrderClientExtensionsModifyTransaction,
-    lastTransactionID: TransactionID;
-    relatedTransactionIDs: TransactionID[];
-  };
-  export type Invalid = {
-    orderClientExtensionsModifyRejectTransaction?: OrderClientExtensionsModifyRejectTransaction;
-    lastTransactionID?: TransactionID;
-    relatedTransactionIDs?: TransactionID[];
-    errorCode?: string;
-    errorMessage: string;
-  };
-  export type NotExist = {
-    orderClientExtensionsModifyRejectTransaction: OrderClientExtensionsModifyRejectTransaction;
-    lastTransactionID?: TransactionID;
-    relatedTransactionIDs?: TransactionID[];
-    errorCode?: string;
-    errorMessage: string;
-  };
-}
 export const updateClientExtensions = async ({ accountID, orderSpecifier, clientExtensions }: { accountID: AccountID, orderSpecifier: OrderSpecifier; clientExtensions: ClientExtensions; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/orders/${orderSpecifier}/clientExtensions`, {
     headers: {
@@ -151,5 +154,5 @@ export const updateClientExtensions = async ({ accountID, orderSpecifier, client
     method: 'put',
     body: JSON.stringify({ clientExtensions })
   });
-  return await response.json() as ClientExtensionsResponse.Success | ClientExtensionsResponse.Invalid | ClientExtensionsResponse.NotExist;
+  return await response.json() as Response.ClientExtensions.Success | Response.ClientExtensions.Invalid | Response.ClientExtensions.NotExist;
 };
