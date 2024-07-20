@@ -1,5 +1,5 @@
 import { test } from 'vitest';
-import { cancelOrder, createOrder, updateOrder } from './order';
+import { cancelOrder, createOrder, updateClientExtensions, updateOrder } from './order';
 import { LimitOrderRequest, MarketIfTouchedOrder, MarketIfTouchedOrderRequest, MarketOrderRequest, TakeProfitOrder, TakeProfitOrderRequest } from './type/order';
 
 const ID = '101-001-27063409-001';
@@ -425,3 +425,77 @@ test('cancel order by client id', async () => {
 //   relatedTransactionIDs: [ '285' ],
 //   lastTransactionID: '285'
 // }
+
+test('update client extension', async () => {
+  // const order: LimitOrderRequest = {
+  //   price: '7.123',
+  //   stopLossOnFill: {
+  //     timeInForce: 'GTC',
+  //     price: '6.8'
+  //   },
+  //   takeProfitOnFill: {
+  //     price: '7.345'
+  //   },
+  //   timeInForce: 'GTC',
+  //   instrument: 'USD_CNH',
+  //   units: '100',
+  //   type: 'LIMIT',
+  //   positionFill: 'DEFAULT'
+  // };
+
+  // const response = await createOrder(ID, order);
+  // console.log(response);
+
+  // {
+  //   orderCreateTransaction: {
+  //     id: '288',
+  //     accountID: '101-001-27063409-001',
+  //     userID: 27063409,
+  //     batchID: '288',
+  //     requestID: '97292224372772592',
+  //     time: '2024-07-20T01:03:32.144348866Z',
+  //     type: 'LIMIT_ORDER',
+  //     instrument: 'USD_CNH',
+  //     units: '100',
+  //     price: '7.12300',
+  //     timeInForce: 'GTC',
+  //     triggerCondition: 'DEFAULT',
+  //     partialFill: 'DEFAULT',
+  //     positionFill: 'DEFAULT',
+  //     takeProfitOnFill: { price: '7.34500', timeInForce: 'GTC' },
+  //     stopLossOnFill: {
+  //       price: '6.80000',
+  //       timeInForce: 'GTC',
+  //       triggerMode: 'TOP_OF_BOOK'
+  //     },
+  //     reason: 'CLIENT_ORDER'
+  //   },
+  //   relatedTransactionIDs: [ '288' ],
+  //   lastTransactionID: '288'
+  // }
+
+  const response = await updateClientExtensions({
+    accountID: ID,
+    orderSpecifier: '288',
+    clientExtensions: {
+      comment: 'new comment here'
+    }
+  });
+
+  console.log(response);
+  // {
+  //   orderClientExtensionsModifyTransaction: {
+  //     id: '289',
+  //     accountID: '101-001-27063409-001',
+  //     userID: 27063409,
+  //     batchID: '289',
+  //     requestID: '79277826315581394',
+  //     time: '2024-07-20T01:05:20.764287844Z',
+  //     type: 'ORDER_CLIENT_EXTENSIONS_MODIFY',
+  //     orderID: '288',
+  //     clientExtensionsModify: { comment: 'new comment here' }
+  //   },
+  //   relatedTransactionIDs: [ '289' ],
+  //   lastTransactionID: '289'
+  // }  
+});
