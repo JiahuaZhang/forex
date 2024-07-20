@@ -718,8 +718,8 @@ export type ClientTag = string;
 export type ClientComment = string;
 
 export type ClientExtensions = {
-  id: ClientID;
-  tag: ClientTag;
+  id?: ClientID;
+  tag?: ClientTag;
   comment: ClientComment;
 };
 

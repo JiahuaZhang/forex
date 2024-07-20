@@ -2,51 +2,34 @@ import { oandaUrl } from './account';
 import { AccountID } from './type/account';
 import { GuaranteedStopLossOrderRequest, LimitOrderRequest, MarketIfTouchedOrderRequest, MarketOrderRequest, Order, OrderID, OrderSpecifier, OrderStateFilter, StopLossOrderRequest, StopOrderRequest, TakeProfitOrderRequest, TrailingStopLossOrderRequest } from './type/order';
 import { AcceptDatetimeFormat, InstrumentName } from './type/primitives';
-import { ClientRequestID, OrderCancelRejectTransaction, OrderCancelTransaction, OrderFillTransaction, Transaction, TransactionID } from './type/transaction';
+import { ClientExtensions, ClientRequestID, OrderCancelRejectTransaction, OrderCancelTransaction, OrderClientExtensionsModifyRejectTransaction, OrderClientExtensionsModifyTransaction, OrderFillTransaction, Transaction, TransactionID } from './type/transaction';
 
-type SuccessOrderResponse = {
-  orderCreateTransaction: Transaction;
-  orderFillTransaction: OrderFillTransaction;
-  orderCancelTransaction: OrderCancelTransaction;
-  orderReissueTransaction: Transaction;
-  orderReissueRejectTransaction: Transaction;
-  relatedTransactionIDs: TransactionID[];
-  lastTransactionID: TransactionID;
-};
+namespace OrderResponse {
+  export type Success = {
+    orderCreateTransaction: Transaction;
+    orderFillTransaction: OrderFillTransaction;
+    orderCancelTransaction: OrderCancelTransaction;
+    orderReissueTransaction: Transaction;
+    orderReissueRejectTransaction: Transaction;
+    relatedTransactionIDs: TransactionID[];
+    lastTransactionID: TransactionID;
 
-type InvalidOrderResponse = {
-  orderRejectTransaction: Transaction;
-  relatedTransactionIDs: TransactionID[];
-  lastTransactionID: TransactionID;
-  errorCode: string;
-  errorMessage: string;
-};
-
-type NotExistOrderResponse = {
-  orderRejectTransaction: Transaction;
-  relatedTransactionIDs: TransactionID[];
-  lastTransactionID: TransactionID;
-  errorCode: string;
-  errorMessage: string;
-};
-
-type SuccessReplaceOrderResponse = SuccessOrderResponse & {
-  replacingOrderCancelTransaction: OrderCancelTransaction;
-};
-
-type NotExistAccountOrOrder = Omit<NotExistOrderResponse, 'orderRejectTransaction'> & {
-  orderCancelRejectTransaction?: Transaction;
-};
-
-type SuccessCancelOrderResponse = Omit<
-  SuccessOrderResponse,
-  'orderCreateTransaction' | 'orderFillTransaction' | 'orderReissueTransaction' | 'orderReissueRejectTransaction'
->;
-
-type NotExistAccountOrOrderSpecified = Omit<NotExistOrderResponse, 'orderRejectTransaction'> & {
-  orderCancelRejectTransaction: OrderCancelRejectTransaction,
-};
-
+  };
+  export type Invalid = {
+    orderRejectTransaction: Transaction;
+    relatedTransactionIDs: TransactionID[];
+    lastTransactionID: TransactionID;
+    errorCode: string;
+    errorMessage: string;
+  };
+  export type NotExist = {
+    orderRejectTransaction: Transaction;
+    relatedTransactionIDs: TransactionID[];
+    lastTransactionID: TransactionID;
+    errorCode: string;
+    errorMessage: string;
+  };
+}
 export const createOrder = async (id: string, order: MarketOrderRequest | LimitOrderRequest | StopOrderRequest | MarketIfTouchedOrderRequest | TakeProfitOrderRequest | StopLossOrderRequest | GuaranteedStopLossOrderRequest | TrailingStopLossOrderRequest) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${id}/orders`, {
     headers: {
@@ -57,7 +40,7 @@ export const createOrder = async (id: string, order: MarketOrderRequest | LimitO
     body: JSON.stringify({ order })
   });
 
-  return await response.json() as SuccessOrderResponse | InvalidOrderResponse | NotExistOrderResponse;
+  return await response.json() as OrderResponse.Success | OrderResponse.Invalid | OrderResponse.NotExist;
 };
 
 export const getOrders = async ({ accountID, acceptDatetimeFormat, ids, state, instrument, count, beforeID }: { accountID: string; acceptDatetimeFormat?: AcceptDatetimeFormat, ids?: OrderID[], state?: OrderStateFilter, instrument?: InstrumentName, count?: number, beforeID?: OrderID; }) => {
@@ -90,6 +73,21 @@ export const getOrder = async ({ acceptDatetimeFormat, accountID, orderSpecifier
   return await response.json() as { order: Order, lastTransactionID: TransactionID; };
 };
 
+namespace UpdateOrderResponse {
+  export type Success = OrderResponse.Success & {
+    replacingOrderCancelTransaction: OrderCancelTransaction;
+  };
+  export type Invalid = {
+    orderRejectTransaction: Transaction;
+    relatedTransactionIDs: TransactionID[];
+    lastTransactionID: TransactionID;
+    errorCode: string;
+    errorMessage: string;
+  };
+  export type NotExist = Omit<OrderResponse.NotExist, 'orderRejectTransaction'> & {
+    orderCancelRejectTransaction?: Transaction;
+  };
+}
 export const updateOrder = async ({ acceptDatetimeFormat, ClientRequestID, accountID, orderSpecifier, order }: { acceptDatetimeFormat?: AcceptDatetimeFormat; ClientRequestID?: ClientRequestID; accountID: AccountID; orderSpecifier: OrderSpecifier; order: MarketOrderRequest | LimitOrderRequest | StopOrderRequest | MarketIfTouchedOrderRequest | TakeProfitOrderRequest | StopLossOrderRequest | GuaranteedStopLossOrderRequest | TrailingStopLossOrderRequest; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/orders/${orderSpecifier}`, {
     headers: {
@@ -100,9 +98,18 @@ export const updateOrder = async ({ acceptDatetimeFormat, ClientRequestID, accou
     body: JSON.stringify({ order })
   });
 
-  return await response.json() as SuccessReplaceOrderResponse | InvalidOrderResponse | NotExistAccountOrOrder;
+  return await response.json() as UpdateOrderResponse.Success | UpdateOrderResponse.Invalid | UpdateOrderResponse.NotExist;
 };
 
+namespace CancelOrderResponse {
+  export type Success = Omit<
+    OrderResponse.Success,
+    'orderCreateTransaction' | 'orderFillTransaction' | 'orderReissueTransaction' | 'orderReissueRejectTransaction'
+  >;
+  export type NotExist = Omit<OrderResponse.NotExist, 'orderRejectTransaction'> & {
+    orderCancelRejectTransaction: OrderCancelRejectTransaction,
+  };
+}
 export const cancelOrder = async ({ accountID, orderSpecifier }: { accountID: AccountID, orderSpecifier: OrderSpecifier; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/orders/${orderSpecifier}/cancel`, {
     headers: {
@@ -111,5 +118,38 @@ export const cancelOrder = async ({ accountID, orderSpecifier }: { accountID: Ac
     },
     method: 'put',
   });
-  return await response.json() as SuccessCancelOrderResponse | NotExistAccountOrOrderSpecified;
+  return await response.json() as CancelOrderResponse.Success | CancelOrderResponse.NotExist;
+};
+
+namespace ClientExtensionsResponse {
+  export type Success = {
+    orderClientExtensionsModifyTransaction: OrderClientExtensionsModifyTransaction,
+    lastTransactionID: TransactionID;
+    relatedTransactionIDs: TransactionID[];
+  };
+  export type Invalid = {
+    orderClientExtensionsModifyRejectTransaction?: OrderClientExtensionsModifyRejectTransaction;
+    lastTransactionID?: TransactionID;
+    relatedTransactionIDs?: TransactionID[];
+    errorCode?: string;
+    errorMessage: string;
+  };
+  export type NotExist = {
+    orderClientExtensionsModifyRejectTransaction: OrderClientExtensionsModifyRejectTransaction;
+    lastTransactionID?: TransactionID;
+    relatedTransactionIDs?: TransactionID[];
+    errorCode?: string;
+    errorMessage: string;
+  };
+}
+export const updateClientExtensions = async ({ accountID, orderSpecifier, clientExtensions }: { accountID: AccountID, orderSpecifier: OrderSpecifier; clientExtensions: ClientExtensions; }) => {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/orders/${orderSpecifier}/clientExtensions`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+      'Content-Type': 'application/json'
+    },
+    method: 'put',
+    body: JSON.stringify({ clientExtensions })
+  });
+  return await response.json() as ClientExtensionsResponse.Success | ClientExtensionsResponse.Invalid | ClientExtensionsResponse.NotExist;
 };
