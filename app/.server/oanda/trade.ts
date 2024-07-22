@@ -13,3 +13,13 @@ export const getTrades = async ({ accountID }: { acceptDatetimeFormat?: AcceptDa
 
   return await response.json() as { trades: Trade[]; lastTransactionID: TransactionID; };
 };
+
+export const getOpenTrades = async ({ accountID }: { acceptDatetimeFormat?: AcceptDatetimeFormat, accountID: AccountID, ids?: TradeID[], state?: TradeStateFilter; instrument?: InstrumentName; count?: Int16Array, beforeID?: TradeID; }) => {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/openTrades`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+    },
+  });
+
+  return await response.json() as { trades: Trade[]; lastTransactionID: TransactionID; };
+};
