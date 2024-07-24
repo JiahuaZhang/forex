@@ -1,4 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { Link } from '@remix-run/react';
 import { Descriptions, Popover } from 'antd';
 import { useLoaderData } from 'react-router';
 import { getTrades } from '~/.server/oanda/trade';
@@ -17,7 +18,9 @@ const Trades = () => {
         <Popover content={<pre >
           {JSON.stringify(trade, null, 2)}
         </pre>} >
-          {trade.id}
+          <Link to={`../${trade.id}`} relative='path' >
+            {trade.id}
+          </Link>
         </Popover>
       </Descriptions.Item>
 
