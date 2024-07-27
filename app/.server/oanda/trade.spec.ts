@@ -2,6 +2,7 @@ import { test } from 'vitest';
 import { closeTrade } from './trade';
 import { MarketOrderRequest } from './type/order';
 import { createOrder } from './order';
+import { Response } from './type/response';
 
 const ID = '101-001-27063409-001';
 
@@ -19,7 +20,7 @@ test('close partial trade', async () => {
   //   positionFill: 'DEFAULT'
   // };
 
-  // const orderResponse = await createOrder(ID, order);
+  // const orderResponse = await createOrder(ID, order) as Response.Order.Success;
   // console.log(orderResponse.orderFillTransaction.id);
 
   const closeResponse = await closeTrade({ accountID: ID, tradeSpecifier: '299', units: '5' });
