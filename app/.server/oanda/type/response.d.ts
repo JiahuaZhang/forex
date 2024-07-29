@@ -1,4 +1,4 @@
-import { MarketOrderRejectTransaction, MarketOrderTransaction, OrderCancelRejectTransaction, OrderCancelTransaction, OrderClientExtensionsModifyTransaction, OrderFillTransaction, TradeClientExtensionsModifyRejectTransaction, TradeClientExtensionsModifyTransaction, Transaction, TransactionID } from './transaction';
+import { GuaranteedStopLossOrderTransaction, MarketOrderRejectTransaction, MarketOrderTransaction, OrderCancelRejectTransaction, OrderCancelTransaction, OrderClientExtensionsModifyTransaction, OrderFillTransaction, StopLossOrderTransaction, TakeProfitOrderTransaction, TradeClientExtensionsModifyRejectTransaction, TradeClientExtensionsModifyTransaction, TrailingStopLossOrderTransaction, Transaction, TransactionID } from './transaction';
 
 export namespace Response {
   export namespace Order {
@@ -117,6 +117,39 @@ export namespace Response {
         errorMessage: string;
       };
       export type All = Success | Fail | NotExist;
+    };
+    export namespace Dependent {
+      export type Success = {
+        takeProfitOrderCancelTransaction?: OrderCancelTransaction;
+        takeProfitOrderTransaction?: TakeProfitOrderTransaction;
+        takeProfitOrderFillTransaction?: OrderFillTransaction;
+        takeProfitOrderCreatedCancelTransaction?: OrderCancelTransaction;
+        stopLossOrderCancelTransaction?: OrderCancelTransaction;
+        stopLossOrderTransaction?: StopLossOrderTransaction;
+        stopLossOrderFillTransaction?: OrderFillTransaction;
+        stopLossOrderCreatedCancelTransaction?: OrderCancelTransaction;
+        trailingStopLossOrderCancelTransaction?: OrderCancelTransaction;
+        trailingStopLossOrderTransaction?: TrailingStopLossOrderTransaction;
+        guaranteedStopLossOrderCancelTransaction?: OrderCancelTransaction;
+        guaranteedStopLossOrderTransaction?: GuaranteedStopLossOrderTransaction;
+        relatedTransactionIDs?: TransactionID[];
+        lastTransactionID?: TransactionID;
+      };
+      export type Fail = {
+        takeProfitOrderCancelRejectTransaction?: OrderCancelRejectTransaction;
+        takeProfitOrderRejectTransaction?: TakeProfitOrderRejectTransaction;
+        stopLossOrderCancelRejectTransaction?: OrderCancelRejectTransaction;
+        stopLossOrderRejectTransaction?: StopLossOrderRejectTransaction;
+        trailingStopLossOrderCancelRejectTransaction?: OrderCancelRejectTransaction;
+        trailingStopLossOrderRejectTransaction?: TrailingStopLossOrderRejectTransaction;
+        guaranteedStopLossOrderCancelRejectTransaction?: OrderCancelRejectTransaction;
+        guaranteedStopLossOrderRejectTransaction?: GuaranteedStopLossOrderRejectTransaction;
+        lastTransactionID?: TransactionID;
+        relatedTransactionIDs?: TransactionID[];
+        errorCode?: string;
+        errorMessage: string;
+      };
+      export type ALL = Success | Fail;
     }
   }
 }

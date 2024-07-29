@@ -734,17 +734,17 @@ export type StopLossDetails = {
 
 export type GuaranteedStopLossDetails = {
   price: PriceValue;
-  distance: DecimalNumber;
+  distance?: DecimalNumber;
   timeInForce: TimeInForce;
-  gtdTime: DateTime;
-  clientExtensions: ClientExtensions;
+  gtdTime?: DateTime;
+  clientExtensions?: ClientExtensions;
 };
 
 export type TrailingStopLossDetails = {
   distance: DecimalNumber;
   timeInForce: TimeInForce;
-  gtdTime: DateTime;
-  clientExtensions: ClientExtensions;
+  gtdTime?: DateTime;
+  clientExtensions?: ClientExtensions;
 };
 
 export type TransactionID = `${number}`;
@@ -797,8 +797,8 @@ export type ClientExtensions = {
 export type TakeProfitDetails = {
   price: PriceValue;
   timeInForce: TimeInForce;
-  gtdTime: DateTime;
-  clientExtensions: ClientExtensions;
+  gtdTime?: DateTime;
+  clientExtensions?: ClientExtensions;
 };
 
 export type StopLossDetails = {

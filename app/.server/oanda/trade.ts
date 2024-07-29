@@ -3,7 +3,7 @@ import { AccountID } from './type/account';
 import { AcceptDatetimeFormat, InstrumentName } from './type/primitives';
 import { Response } from './type/response';
 import { Trade, TradeID, TradeSpecifier, TradeStateFilter } from './type/trade';
-import { ClientExtensions, TransactionID } from './type/transaction';
+import { ClientExtensions, GuaranteedStopLossDetails, StopLossDetails, TakeProfitDetails, TrailingStopLossDetails, TransactionID } from './type/transaction';
 
 export const getTrades = async ({ accountID }: { acceptDatetimeFormat?: AcceptDatetimeFormat, accountID: AccountID, ids?: TradeID[], state?: TradeStateFilter; instrument?: InstrumentName; count?: Int16Array, beforeID?: TradeID; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/trades`, {
@@ -59,4 +59,32 @@ export const updateTradeClientExtensions = async ({ accountID, tradeSpecifier, c
   });
 
   return await response.json() as Response.Trade.ClientExtensions.All;
+};
+
+export const updateTradeDependentOrder = async (
+  { accountID, tradeSpecifier, takeProfit, stopLoss, trailingStopLoss, guaranteedStopLoss }: {
+    acceptDatetimeFormat?: AcceptDatetimeFormat,
+    accountID: AccountID,
+    tradeSpecifier: TradeSpecifier;
+    takeProfit?: TakeProfitDetails | null;
+    stopLoss?: StopLossDetails | null;
+    trailingStopLoss?: TrailingStopLossDetails | null;
+    guaranteedStopLoss?: GuaranteedStopLossDetails | null;
+  }
+) => {
+  const orders = [['takeProfit', takeProfit],
+  ['stopLoss', stopLoss],
+  ['trailingStopLoss', trailingStopLoss],
+  ['guaranteedStopLoss', guaranteedStopLoss]].filter(([key, value]) => value !== undefined);
+
+  const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/trades/${tradeSpecifier}/orders`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+      'Content-Type': 'application/json'
+    },
+    method: 'put',
+    body: JSON.stringify(Object.fromEntries(orders))
+  });
+
+  return await response.json() as Response.Trade.Dependent.ALL;
 };
