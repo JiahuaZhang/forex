@@ -12,3 +12,13 @@ export const getPositions = async ({ accountID }: { accountID: AccountID; }) => 
 
   return await response.json() as { positions: Position[]; lastTransactionID: TransactionID; };
 };
+
+export const getOpenPositions = async ({ accountID }: { accountID: AccountID; }) => {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/openPositions`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+    },
+  });
+
+  return await response.json() as { positions: Position[]; lastTransactionID: TransactionID; };
+};
