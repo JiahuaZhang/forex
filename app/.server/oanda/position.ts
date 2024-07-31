@@ -1,6 +1,7 @@
 import { oandaUrl } from './account';
 import { AccountID } from './type/account';
 import { Position } from './type/position';
+import { InstrumentName } from './type/primitives';
 import { TransactionID } from './type/transaction';
 
 export const getPositions = async ({ accountID }: { accountID: AccountID; }) => {
@@ -21,4 +22,14 @@ export const getOpenPositions = async ({ accountID }: { accountID: AccountID; })
   });
 
   return await response.json() as { positions: Position[]; lastTransactionID: TransactionID; };
+};
+
+export const getInstrumentPosition = async ({ accountID, instrument }: { accountID: AccountID; instrument: InstrumentName; }) => {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/positions/${instrument}`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+    },
+  });
+
+  return await response.json() as { position: Position; lastTransactionID: TransactionID; };
 };
