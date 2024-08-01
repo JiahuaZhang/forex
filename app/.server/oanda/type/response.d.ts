@@ -151,5 +151,34 @@ export namespace Response {
       };
       export type ALL = Success | Fail;
     }
+  };
+  export namespace Position {
+    export type Success = {
+      longOrderCreateTransaction?: MarketOrderTransaction;
+      longOrderFillTransaction?: OrderFillTransaction;
+      longOrderCancelTransaction?: OrderCancelTransaction;
+      shortOrderCreateTransaction?: MarketOrderTransaction;
+      shortOrderFillTransaction?: OrderFillTransaction;
+      shortOrderCancelTransaction?: OrderCancelTransaction;
+      relatedTransactionIDs?: TransactionID[];
+      lastTransactionID?: TransactionID;
+    };
+    export type Invalid = {
+      longOrderRejectTransaction?: MarketOrderRejectTransaction;
+      shortOrderRejectTransaction?: MarketOrderRejectTransaction;
+      relatedTransactionIDs?: TransactionID[];
+      lastTransactionID?: TransactionID;
+      errorCode?: string;
+      errorMessage: string;
+    };
+    export type NotExist = {
+      longOrderRejectTransaction?: MarketOrderRejectTransaction;
+      shortOrderRejectTransaction?: MarketOrderRejectTransaction;
+      relatedTransactionIDs?: TransactionID[];
+      lastTransactionID?: TransactionID;
+      errorCode?: string;
+      errorMessage: string;
+    };
+    export type All = Success | Invalid | NotExist;
   }
 }
