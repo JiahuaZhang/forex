@@ -7,7 +7,7 @@ export const loader = ({ request, params }: LoaderFunctionArgs) => {
 };
 
 const links = ['summary', 'instruments', 'changes'];
-const otherLinks = ['order', 'position', 'trade'];
+const otherLinks = ['order', 'position', 'trade', 'transaction'];
 const Page = () => {
   const data = useLoaderData<typeof loader>();
   const { id } = useParams();
