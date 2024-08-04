@@ -181,4 +181,15 @@ export namespace Response {
     };
     export type All = Success | Invalid | NotExist;
   }
+  export namespace Transaction {
+    export type Range = {
+      from: DateTime;
+      to: DateTime;
+      pageSize: number;
+      type: TransactionFilter[];
+      count: number;
+      pages: string[];
+      lastTransactionID: TransactionID;
+    };
+  }
 }
