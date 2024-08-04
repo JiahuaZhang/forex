@@ -26,7 +26,7 @@ const Page = () => {
       {
         otherLinks.map(link => (
           <li key={link}>
-            <Link to={`/oanda/${link}/${id}/list`}>
+            <Link to={`/oanda/account/${id}/${link}/list`}>
               {link}
             </Link>
           </li>

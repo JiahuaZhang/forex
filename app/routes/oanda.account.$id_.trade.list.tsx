@@ -15,7 +15,7 @@ const Trades = () => {
   return <div>{
     data.trades.map(trade => <Descriptions key={trade.id} bordered size='small' un-m='2' >
       <Descriptions.Item label='id' >
-        <Popover content={<pre >
+        <Popover content={<pre un-max-h='3xl' un-overflow='auto' >
           {JSON.stringify(trade, null, 2)}
         </pre>} >
           <Link to={`../${trade.id}`} relative='path' >
