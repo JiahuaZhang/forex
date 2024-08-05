@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from '@remix-run/react';
 import { Descriptions } from 'antd';
 import { getTransactions } from '~/.server/oanda/transaction';
 
@@ -17,7 +17,11 @@ const Transaction = () => {
     <Descriptions.Item label='from'>{from}</Descriptions.Item>
     <Descriptions.Item label='to'>{to}</Descriptions.Item>
     <Descriptions.Item label='page size'>{pageSize}</Descriptions.Item>
-    <Descriptions.Item label='last transaction id'>{lastTransactionID}</Descriptions.Item>
+    <Descriptions.Item label='last transaction id'>
+      <Link to={`../${lastTransactionID}`} relative='path' >
+        {lastTransactionID}
+      </Link>
+    </Descriptions.Item>
     <Descriptions.Item label='page'>
       <ul>
         {pages.map(page => <li key={page} > {page} </li>)}
