@@ -23,3 +23,13 @@ export const getTransaction = async ({ accountID, transactionID }: { accountID: 
 
   return await response.json() as { transaction: Transaction; lastTransactionID: TransactionID; };
 };
+
+export const getTransactionsRange = async ({ accountID, from, to, type }: { accountID: AccountID; acceptDatetimeFormat?: AcceptDatetimeFormat; from: TransactionID; to: TransactionID; type?: TransactionFilter[]; }) => {
+  const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/transactions/idrange?from=${from}&to=${to}${type ? `&type=${type}` : ''}`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+    },
+  });
+
+  return await response.json() as { transactions: Transaction[]; lastTransactionID: TransactionID; };
+};
