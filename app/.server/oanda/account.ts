@@ -3,7 +3,7 @@ import { Oanda } from './type/type';
 export const oandaUrl = 'https://api-fxpractice.oanda.com';
 // const url = 'https://api-fxtrade.oanda.com';
 
-const oandaStreamUrl = 'https://stream-fxpractice.oanda.com';
+export const oandaStreamUrl = 'https://stream-fxpractice.oanda.com';
 // const streamUrl = 'https://stream-fxtrade.oanda.com';
 
 export const getAccounts = async () => {

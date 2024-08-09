@@ -1,4 +1,4 @@
-import { oandaUrl } from './account';
+import { oandaStreamUrl, oandaUrl } from './account';
 import { AccountID } from './type/account';
 import { AcceptDatetimeFormat, DateTime } from './type/primitives';
 import { Response } from './type/response';
@@ -43,3 +43,8 @@ export const getTransactionsSince = async ({ accountID, type, id }: { accountID:
 
   return await response.json() as { transactions: Transaction[]; lastTransactionID: TransactionID; };
 };
+
+export const getTransactionsStreamData = async (accountID: AccountID) => ({
+  url: `${oandaStreamUrl}/v3/accounts/${accountID}/transactions/stream`,
+  key: process.env.OANDA_API_KEY
+});
