@@ -1,3 +1,5 @@
+import { eventStream } from 'remix-utils/sse/server';
+import { interval } from 'remix-utils/timers';
 import { oandaStreamUrl, oandaUrl } from './account';
 import { AccountID } from './type/account';
 import { AcceptDatetimeFormat, DateTime } from './type/primitives';
@@ -44,7 +46,31 @@ export const getTransactionsSince = async ({ accountID, type, id }: { accountID:
   return await response.json() as { transactions: Transaction[]; lastTransactionID: TransactionID; };
 };
 
-export const getTransactionsStreamData = async (accountID: AccountID) => ({
-  url: `${oandaStreamUrl}/v3/accounts/${accountID}/transactions/stream`,
-  key: process.env.OANDA_API_KEY
-});
+export const getTransactionsStreamData = (accountID: AccountID, signal: AbortSignal) =>
+  eventStream(signal, send => {
+    let reader: null | ReadableStreamDefaultReader<Uint8Array>;
+    const run = async () => {
+      const response = await fetch(`${oandaStreamUrl}/v3/accounts/${accountID}/transactions/stream`,
+        { headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY}` } });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        send({ event: `${accountID}-transaction-stream`, data: JSON.stringify(errorResponse) });
+        return;
+      }
+
+      reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      for await (let _ of interval(1000, { signal })) {
+        const { done, value } = await reader.read();
+        if (done) return;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const transactions = chunk.split('\n').filter(line => line.trim() !== '').map(line => JSON.parse(line));
+        transactions.forEach(transaction => send({ event: `${accountID}-transaction-stream`, data: JSON.stringify(transaction) }));
+      }
+    };
+
+    run();
+    return () => reader?.cancel();
+  });
