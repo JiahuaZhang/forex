@@ -51,7 +51,7 @@ export const getTransactionsStreamData = (accountID: AccountID, signal: AbortSig
     let reader: null | ReadableStreamDefaultReader<Uint8Array>;
     const run = async () => {
       const response = await fetch(`${oandaStreamUrl}/v3/accounts/${accountID}/transactions/stream`,
-        { headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY}` } });
+        { headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY}` }, signal });
 
       if (!response.ok) {
         const errorResponse = await response.json();
@@ -62,6 +62,8 @@ export const getTransactionsStreamData = (accountID: AccountID, signal: AbortSig
       reader = response.body!.getReader();
       const decoder = new TextDecoder();
       for await (let _ of interval(1000, { signal })) {
+        // https://github.com/remix-run/remix/discussions/8461
+        console.log('handling sse on server side, be casual on vite dev mode');
         const { done, value } = await reader.read();
         if (done) return;
 
