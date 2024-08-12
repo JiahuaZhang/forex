@@ -48,7 +48,7 @@ export const getTransactionsSince = async ({ accountID, type, id }: { accountID:
 
 export const getTransactionsStreamData = (accountID: AccountID, signal: AbortSignal) =>
   eventStream(signal, send => {
-    let reader: null | ReadableStreamDefaultReader<Uint8Array>;
+    let reader: undefined | ReadableStreamDefaultReader<Uint8Array>;
     const run = async () => {
       const response = await fetch(`${oandaStreamUrl}/v3/accounts/${accountID}/transactions/stream`,
         { headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY}` }, signal });
@@ -59,7 +59,9 @@ export const getTransactionsStreamData = (accountID: AccountID, signal: AbortSig
         return;
       }
 
-      reader = response.body!.getReader();
+      reader = response.body?.getReader();
+      if (!reader) return;
+
       const decoder = new TextDecoder();
       for await (let _ of interval(1000, { signal })) {
         // https://github.com/remix-run/remix/discussions/8461
