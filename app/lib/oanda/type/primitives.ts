@@ -11,7 +11,11 @@ export type Tag = {
   name: string;
 };
 
-export type InstrumentName = `${Currency}_${Currency}`;
+export const AllInstrumentName = [
+  "USD_CNH", "NZD_CAD", "EUR_CHF", "SGD_CHF", "EUR_CZK", "NZD_JPY", "CHF_HKD", "EUR_GBP", "EUR_NOK", "USD_CZK", "GBP_NZD", "EUR_SEK", "USD_SGD", "GBP_PLN", "CAD_HKD", "USD_CHF", "AUD_HKD", "NZD_CHF", "AUD_CHF", "GBP_CHF", "USD_THB", "GBP_CAD", "EUR_HKD", "CHF_JPY", "GBP_HKD", "EUR_NZD", "AUD_SGD", "EUR_JPY", "EUR_TRY", "USD_JPY", "SGD_JPY", "GBP_ZAR", "ZAR_JPY", "NZD_SGD", "GBP_JPY", "USD_TRY", "TRY_JPY", "EUR_SGD", "EUR_AUD", "USD_CAD", "CAD_CHF", "USD_NOK", "AUD_USD", "AUD_JPY", "EUR_ZAR", "CHF_ZAR", "USD_HKD", "USD_PLN", "GBP_AUD", "USD_DKK", "EUR_USD", "USD_ZAR", "CAD_JPY", "NZD_USD", "NZD_HKD", "AUD_NZD", "CAD_SGD", "GBP_USD", "USD_MXN", "AUD_CAD", "USD_HUF", "EUR_CAD", "EUR_DKK", "USD_SEK", "GBP_SGD", "EUR_PLN", "HKD_JPY", "EUR_HUF"
+] as const;
+// export type InstrumentName = `${Currency}_${Currency}`;
+export type InstrumentName = typeof AllInstrumentName[number];
 
 export type InstrumentType = 'CURRENCY' | 'CFD' | 'METAL';
 
@@ -71,7 +75,8 @@ export type GuaranteedStopLossOrderLevelRestriction = {
 export type Direction = 'LONG' | 'SHORT';
 
 // Can contain any combination of the characters “M” (midpoint candles) “B” (bid candles) and “A” (ask candles).
-export type PricingComponent = 'M' | 'B' | 'A';
+export const AllPricingComponent = ['M', 'B', 'A'] as const;
+export type PricingComponent = typeof AllPricingComponent[number];
 
 export type ConversionFactor = {
   factor: DecimalNumber;

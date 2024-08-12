@@ -77,7 +77,6 @@ export namespace Oanda {
   export type OrderID = Order.OrderID;
   export type OrderType = Order.OrderType;
   export type CancellableOrderType = Order.CancellableOrderType;
-  export type OrderState = Order.OrderState;
   export type OrderStateFilter = Order.OrderStateFilter;
   export type OrderIdentifier = Order.OrderIdentifier;
   export type OrderSpecifier = Order.OrderSpecifier;
@@ -174,13 +173,6 @@ export namespace Oanda {
   export type OrderCancelReason = Transaction.OrderCancelReason;
   export type OpenTradeDividendAdjustment = Transaction.OpenTradeDividendAdjustment;
   export type ClientID = Transaction.ClientID;
-  export type ClientTag = Transaction.ClientTag;
-  export type ClientComment = Transaction.ClientComment;
-  export type ClientExtensions = Transaction.ClientExtensions;
-  export type TakeProfitDetails = Transaction.TakeProfitDetails;
-  export type StopLossDetails = Transaction.StopLossDetails;
-  export type GuaranteedStopLossDetails = Transaction.GuaranteedStopLossDetails;
-  export type TrailingStopLossDetails = Transaction.TrailingStopLossDetails;
   export type TradeOpen = Transaction.TradeOpen;
   export type TradeReduce = Transaction.TradeReduce;
   export type MarketOrderTradeClose = Transaction.MarketOrderTradeClose;

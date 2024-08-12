@@ -1,7 +1,9 @@
 import { PriceValue } from './pricing-common';
 import { DateTime, DecimalNumber, InstrumentName } from './primitives';
 
-export type CandlestickGranularity = 'S5' | 'S10' | 'S15' | 'S30' | 'M1' | 'M2' | 'M3' | 'M4' | 'M5' | 'M10' | 'M15' | 'M30' | 'H1' | 'H2' | 'H3' | 'H4' | 'H6' | 'H8' | 'H12' | 'D' | 'W' | 'M';
+export const AllCandlestickGranularity = ['S5', 'S10', 'S15', 'S30', 'M1', 'M2', 'M3', 'M4', 'M5', 'M10', 'M15', 'M30', 'H1', 'H2', 'H3', 'H4', 'H6', 'H8', 'H12', 'D', 'W', 'M'] as const;
+
+export type CandlestickGranularity = typeof AllCandlestickGranularity[number];
 
 export type WeeklyAlignment = 'SUNDAY' | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY';
 
