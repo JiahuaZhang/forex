@@ -5,8 +5,8 @@ import BigNumber from 'bignumber.js';
 import { Suspense } from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, Rectangle, Tooltip, XAxis, YAxis } from 'recharts';
 import { getPositionBook } from '~/.server/oanda/instrument';
-import { PositionBookBucket } from '~/.server/oanda/type/instrument';
-import { InstrumentName } from '~/.server/oanda/type/primitives';
+import { PositionBookBucket } from '~/lib/oanda/type/instrument';
+import { InstrumentName } from '~/lib/oanda/type/primitives';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   return getPositionBook({

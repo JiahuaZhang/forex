@@ -1,4 +1,4 @@
-import { Oanda } from './type/type';
+import { Oanda } from '../../lib/oanda/type/type';
 
 export const oandaUrl = 'https://api-fxpractice.oanda.com';
 // const url = 'https://api-fxtrade.oanda.com';

@@ -1,6 +1,6 @@
 import { test } from 'vitest';
 import { cancelOrder, createOrder, updateClientExtensions, updateOrder } from './order';
-import { LimitOrderRequest, MarketIfTouchedOrder, MarketIfTouchedOrderRequest, MarketOrderRequest, TakeProfitOrder, TakeProfitOrderRequest } from './type/order';
+import { LimitOrderRequest, MarketIfTouchedOrder, MarketIfTouchedOrderRequest, MarketOrderRequest, TakeProfitOrder, TakeProfitOrderRequest } from '../../lib/oanda/type/order';
 
 const ID = '101-001-27063409-001';
 

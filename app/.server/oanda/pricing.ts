@@ -1,7 +1,7 @@
 import { oandaUrl } from './account';
-import { AccountID } from './type/account';
-import { CandlestickGranularity, CandlestickResponse, WeeklyAlignment } from './type/instrument';
-import { AcceptDatetimeFormat, DecimalNumber, InstrumentName, PricingComponent } from './type/primitives';
+import { AccountID } from '../../lib/oanda/type/account';
+import { CandlestickGranularity, CandlestickResponse, WeeklyAlignment } from '../../lib/oanda/type/instrument';
+import { AcceptDatetimeFormat, DecimalNumber, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
 
 export type CandleSpecification = `${InstrumentName}:${CandlestickGranularity}:${PricingComponent}`;
 

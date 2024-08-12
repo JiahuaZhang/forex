@@ -1,9 +1,9 @@
 import { oandaUrl } from './account';
-import { AccountID } from './type/account';
-import { Position } from './type/position';
-import { InstrumentName } from './type/primitives';
-import { Response } from './type/response';
-import { ClientExtensions, TransactionID } from './type/transaction';
+import { AccountID } from '../../lib/oanda/type/account';
+import { Position } from '../../lib/oanda/type/position';
+import { InstrumentName } from '../../lib/oanda/type/primitives';
+import { Response } from '../../lib/oanda/type/response';
+import { ClientExtensions, TransactionID } from '../../lib/oanda/type/transaction';
 
 export const getPositions = async ({ accountID }: { accountID: AccountID; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/positions`, {

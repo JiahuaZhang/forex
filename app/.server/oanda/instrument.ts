@@ -1,6 +1,6 @@
 import { oandaUrl } from './account';
-import { Candlestick, CandlestickGranularity, OrderBook, PositionBook, WeeklyAlignment } from './type/instrument';
-import { AcceptDatetimeFormat, DateTime, InstrumentName, PricingComponent } from './type/primitives';
+import { Candlestick, CandlestickGranularity, OrderBook, PositionBook, WeeklyAlignment } from '../../lib/oanda/type/instrument';
+import { AcceptDatetimeFormat, DateTime, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
 
 type CandlesProps = {
   AcceptDatetimeFormat?: AcceptDatetimeFormat;

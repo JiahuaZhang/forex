@@ -3,8 +3,8 @@ import { Suspense, useEffect } from 'react';
 import { getCandles } from '~/.server/oanda/instrument';
 import { createChart, ChartOptions, ColorType, CrosshairMode, LineStyle, IPriceLine } from 'lightweight-charts';
 import { Link, useLoaderData, useParams } from '@remix-run/react';
-import { Candlestick } from '~/.server/oanda/type/instrument';
-import { Currency } from '~/.server/oanda/type/primitives';
+import { Candlestick } from '~/lib/oanda/type/instrument';
+import { Currency } from '~/lib/oanda/type/primitives';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   return getCandles({

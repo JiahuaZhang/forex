@@ -1,9 +1,9 @@
 import { oandaUrl } from './account';
-import { AccountID } from './type/account';
-import { GuaranteedStopLossOrderRequest, LimitOrderRequest, MarketIfTouchedOrderRequest, MarketOrderRequest, Order, OrderID, OrderSpecifier, OrderStateFilter, StopLossOrderRequest, StopOrderRequest, TakeProfitOrderRequest, TrailingStopLossOrderRequest } from './type/order';
-import { AcceptDatetimeFormat, InstrumentName } from './type/primitives';
-import { Response } from './type/response';
-import { ClientExtensions, ClientRequestID, TransactionID } from './type/transaction';
+import { AccountID } from '../../lib/oanda/type/account';
+import { GuaranteedStopLossOrderRequest, LimitOrderRequest, MarketIfTouchedOrderRequest, MarketOrderRequest, Order, OrderID, OrderSpecifier, OrderStateFilter, StopLossOrderRequest, StopOrderRequest, TakeProfitOrderRequest, TrailingStopLossOrderRequest } from '../../lib/oanda/type/order';
+import { AcceptDatetimeFormat, InstrumentName } from '../../lib/oanda/type/primitives';
+import { Response } from '../../lib/oanda/type/response';
+import { ClientExtensions, ClientRequestID, TransactionID } from '../../lib/oanda/type/transaction';
 
 export const createOrder = async (id: string, order: MarketOrderRequest | LimitOrderRequest | StopOrderRequest | MarketIfTouchedOrderRequest | TakeProfitOrderRequest | StopLossOrderRequest | GuaranteedStopLossOrderRequest | TrailingStopLossOrderRequest) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${id}/orders`, {

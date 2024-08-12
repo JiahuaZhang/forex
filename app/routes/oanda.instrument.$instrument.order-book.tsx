@@ -5,8 +5,8 @@ import BigNumber from 'bignumber.js';
 import { Suspense } from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, Rectangle, Tooltip, XAxis, YAxis } from 'recharts';
 import { getOrderBook } from '~/.server/oanda/instrument';
-import { OrderBookBucket } from '~/.server/oanda/type/instrument';
-import { InstrumentName } from '~/.server/oanda/type/primitives';
+import { OrderBookBucket } from '~/lib/oanda/type/instrument';
+import { InstrumentName } from '~/lib/oanda/type/primitives';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   return getOrderBook({ instrument: params.instrument as InstrumentName });

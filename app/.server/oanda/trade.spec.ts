@@ -1,9 +1,9 @@
 import { test } from 'vitest';
 import { closeTrade, updateTradeClientExtensions, updateTradeDependentOrder } from './trade';
-import { MarketOrderRequest } from './type/order';
+import { MarketOrderRequest } from '../../lib/oanda/type/order';
 import { createOrder } from './order';
-import { Response } from './type/response';
-import { ClientExtensions, GuaranteedStopLossDetails, StopLossDetails, TakeProfitDetails, TrailingStopLossDetails } from './type/transaction';
+import { Response } from '../../lib/oanda/type/response';
+import { ClientExtensions, GuaranteedStopLossDetails, StopLossDetails, TakeProfitDetails, TrailingStopLossDetails } from '../../lib/oanda/type/transaction';
 
 const ID = '101-001-27063409-001';
 

@@ -1,9 +1,9 @@
 import { oandaUrl } from './account';
-import { AccountID } from './type/account';
-import { AcceptDatetimeFormat, InstrumentName } from './type/primitives';
-import { Response } from './type/response';
-import { Trade, TradeID, TradeSpecifier, TradeStateFilter } from './type/trade';
-import { ClientExtensions, GuaranteedStopLossDetails, StopLossDetails, TakeProfitDetails, TrailingStopLossDetails, TransactionID } from './type/transaction';
+import { AccountID } from '../../lib/oanda/type/account';
+import { AcceptDatetimeFormat, InstrumentName } from '../../lib/oanda/type/primitives';
+import { Response } from '../../lib/oanda/type/response';
+import { Trade, TradeID, TradeSpecifier, TradeStateFilter } from '../../lib/oanda/type/trade';
+import { ClientExtensions, GuaranteedStopLossDetails, StopLossDetails, TakeProfitDetails, TrailingStopLossDetails, TransactionID } from '../../lib/oanda/type/transaction';
 
 export const getTrades = async ({ accountID }: { acceptDatetimeFormat?: AcceptDatetimeFormat, accountID: AccountID, ids?: TradeID[], state?: TradeStateFilter; instrument?: InstrumentName; count?: Int16Array, beforeID?: TradeID; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/trades`, {

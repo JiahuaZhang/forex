@@ -1,10 +1,10 @@
 import { eventStream } from 'remix-utils/sse/server';
 import { interval } from 'remix-utils/timers';
 import { oandaStreamUrl, oandaUrl } from './account';
-import { AccountID } from './type/account';
-import { AcceptDatetimeFormat, DateTime } from './type/primitives';
-import { Response } from './type/response';
-import { Transaction, TransactionFilter, TransactionID } from './type/transaction';
+import { AccountID } from '../../lib/oanda/type/account';
+import { AcceptDatetimeFormat, DateTime } from '../../lib/oanda/type/primitives';
+import { Response } from '../../lib/oanda/type/response';
+import { Transaction, TransactionFilter, TransactionID } from '../../lib/oanda/type/transaction';
 
 export const getTransactions = async ({ accountID }: { accountID: AccountID; acceptDatetimeFormat?: AcceptDatetimeFormat, from?: DateTime, to?: DateTime, pageSize?: number, type?: TransactionFilter[]; }) => {
   const response = await fetch(`${oandaUrl}/v3/accounts/${accountID}/transactions`, {

@@ -3,7 +3,7 @@ import { useLoaderData } from '@remix-run/react';
 import { Descriptions } from 'antd';
 import { DescriptionsItemType } from 'antd/es/descriptions';
 import { getInstrumentPosition } from '~/.server/oanda/position';
-import { InstrumentName } from '~/.server/oanda/type/primitives';
+import { InstrumentName } from '~/lib/oanda/type/primitives';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   return getInstrumentPosition({ accountID: params.id as any, instrument: params.instrument as InstrumentName });
