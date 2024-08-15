@@ -3,7 +3,8 @@ import { AccountID } from '../../lib/oanda/type/account';
 import { CandlestickGranularity, CandlestickResponse, WeeklyAlignment } from '../../lib/oanda/type/instrument';
 import { AcceptDatetimeFormat, DecimalNumber, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
 
-export type CandleSpecification = `${InstrumentName}:${CandlestickGranularity}:${PricingComponent}`;
+type PossiblePricingComponent = `${PricingComponent}` | `${PricingComponent}${PricingComponent}` | `${PricingComponent}${PricingComponent}${PricingComponent}`;
+export type CandleSpecification = `${InstrumentName}:${CandlestickGranularity}:${PossiblePricingComponent}`;
 
 export const getLatestCandles = async ({
   acceptDatetimeFormat, accountID, candleSpecification, units = '1', smooth = false, dailyAlignment = 17, alignmentTimezone = 'America/New_York', weeklyAlignment = 'FRIDAY'
