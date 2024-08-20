@@ -1,8 +1,9 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { useFetcher } from '@remix-run/react';
 import { Button, Select } from 'antd';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { getLatestCandles } from '~/.server/oanda/pricing';
+import { use3Candles } from '~/lib/chart/useCandleChart';
 import { AccountID } from '~/lib/oanda/type/account';
 import { AllCandlestickGranularity, CandlestickGranularity } from '~/lib/oanda/type/instrument';
 import { AllInstrumentName, AllPricingComponent, InstrumentName, PricingComponent } from '~/lib/oanda/type/primitives';
@@ -15,16 +16,20 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const data = await request.formData();
   const instrument = data.get('instrument') as InstrumentName;
   const granularity = data.get('granularity') as CandlestickGranularity;
-  const pricing = (data.get('pricing') as string).split(',') as PricingComponent[];
+  const price = (data.get('price') as string).split(',') as PricingComponent[];
 
-  return getLatestCandles({ accountID: params.id as AccountID, instrument, granularity, pricing });
+  return getLatestCandles({ accountID: params.id as AccountID, instrument, granularity, price });
 };
 
 const Latest = () => {
   const [instrument, setInstrument] = useState<InstrumentName>('GBP_USD');
   const [granularity, setGranularity] = useState<CandlestickGranularity>('H1');
-  const [pricing, setPricing] = useState<PricingComponent[]>(['M']);
+  const [price, setPrice] = useState<PricingComponent[]>(['M']);
   const fetcher = useFetcher<typeof action>();
+  use3Candles({ candles: fetcher.data?.candles });
+
+  console.log(fetcher.data?.candles);
+
 
   return <div>
     <header un-grid='~ inline' un-gap='6' un-auto-flow='col' un-justify='start' un-items='center' >
@@ -35,7 +40,7 @@ const Latest = () => {
         :
         <Select un-ml='1' un-mr='1' un-w='20' options={granularityOptions} value={granularity} showSearch onChange={setGranularity} />
         :
-        <Select un-ml='1' un-min-w='16' options={pricingOptions} value={pricing} onChange={setPricing} mode='multiple' />
+        <Select un-ml='1' un-min-w='16' options={pricingOptions} value={price} onChange={setPrice} mode='multiple' />
       </span>
       {
         fetcher.state === 'loading'
@@ -45,19 +50,18 @@ const Latest = () => {
         fetcher.state === 'idle'
         && <Button type='primary'
           icon={<div className="i-ic:baseline-check" />}
-          onClick={() => {
-            console.log('click on button?');
-            fetcher.submit({ instrument, granularity, pricing }, { method: 'post' });
-          }}
+          onClick={() => fetcher.submit({ instrument, granularity, price }, { method: 'post' })}
         />
       }
     </header>
     <main>
-      {
-        fetcher.data && JSON.stringify(fetcher.data, null, 2)
-      }
+      <div id="mid" un-h='96' />
+      <div id="ask" un-h='96' />
+      <div id="bid" un-h='96' />
     </main>
   </div >;
 };
 
-export default Latest;
+export default () => <Suspense>
+  <Latest />
+</Suspense>;

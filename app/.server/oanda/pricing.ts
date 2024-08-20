@@ -32,16 +32,21 @@ import { oandaUrl } from './account';
 //   return await response.json() as { latestCandles: CandlestickResponse[]; };
 // };
 
-export const getLatestCandles = async ({ acceptDatetimeFormat, accountID, instrument, granularity = 'H1', pricing = ['M']
+export const getLatestCandles = async ({ acceptDatetimeFormat = 'UNIX', accountID, instrument, granularity = 'H1', price = ['M']
 }: {
   acceptDatetimeFormat?: AcceptDatetimeFormat;
   accountID: AccountID,
   instrument: InstrumentName,
   granularity?: CandlestickGranularity,
-  pricing?: PricingComponent[];
+  price?: PricingComponent[];
 }) => {
-  const url = `${oandaUrl}/v3/accounts/${accountID}/candles/latest?instrument=${instrument}${granularity ? `&granularity=${granularity}` : ''}${pricing ? `&pricing=${pricing.join('')}` : ''}`;
-  const response = await fetch(url, { headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY ?? ''}`, }, });
+  const url = `${oandaUrl}/v3/accounts/${accountID}/candles/latest?instrument=${instrument}${granularity ? `&granularity=${granularity}` : ''}${price ? `&price=${price.join('')}` : ''}`;
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+      'Accept-Datetime-Format': acceptDatetimeFormat!
+    },
+  });
 
   return await response.json() as {
     instrument: InstrumentName,

@@ -105,3 +105,49 @@ export const useCandleChart = (id: string, currency: Currency, data: ReturnType<
     return () => chart.remove();
   }, [document]);
 };
+
+const chartOptions = {
+  localization: { dateFormat: 'yyyy-MM-dd' },
+  timeScale: { timeVisible: true }
+} as ChartOptions;
+const use1Candle = ({ valid, candles, price, container }: { valid: boolean; candles: Candlestick[]; price: 'ask' | 'mid' | 'bid'; container: string; }) => {
+  useEffect(() => {
+    if (!document) return;
+    if (!valid) return;
+    const chart = createChart(document.getElementById(container)!, chartOptions);
+    console.log(chart);
+
+    const mainSeries = chart.addCandlestickSeries({ lastValueVisible: false, });
+    const data = convertCandle(candles, price);
+    mainSeries.setData(data as any);
+    const volumeData = data.map(d => ({ time: d.time, value: d.volume }));
+    const volumeSeries = chart.addHistogramSeries({ priceScaleId: 'volume', lastValueVisible: false, });
+    volumeSeries.setData(volumeData as any);
+    chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.7, bottom: 0 } });
+    chart.timeScale().fitContent();
+
+    let lastVolumePriceLine: IPriceLine | null = null;
+    chart.subscribeCrosshairMove((param) => {
+      if (!param || !param.time) return;
+      const volume = param.seriesData.get(volumeSeries);
+      if (lastVolumePriceLine) {
+        volumeSeries.removePriceLine(lastVolumePriceLine);
+      }
+      if (volume) {
+        lastVolumePriceLine = volumeSeries.createPriceLine({ price: (volume as any).value });
+      }
+    });
+
+    return () => chart.remove();
+  }, [document, valid, candles]);
+};
+
+export const use3Candles = ({ candles, ask = 'ask', mid = 'mid', bid = 'bid' }: { candles?: Candlestick[], ask?: string, mid?: string, bid?: string; }) => {
+  const hasAsk = Boolean(candles && candles[0].ask !== undefined);
+  const hasBid = Boolean(candles && candles[0].bid !== undefined);
+  const hasMid = Boolean(candles && candles[0].mid !== undefined);
+
+  use1Candle({ valid: hasAsk, price: 'ask', candles: candles!, container: ask });
+  use1Candle({ valid: hasBid, price: 'bid', candles: candles!, container: bid });
+  use1Candle({ valid: hasMid, price: 'mid', candles: candles!, container: mid });
+};
