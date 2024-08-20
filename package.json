@@ -17,9 +17,9 @@
     "@iconify-json/line-md": "^1.1.37",
     "@iconify-json/openmoji": "^1.1.51",
     "@iconify-json/ph": "^1.1.12",
-    "@remix-run/node": "2.11.1",
-    "@remix-run/react": "2.11.1",
-    "@remix-run/serve": "2.11.1",
+    "@remix-run/node": "2.11.2",
+    "@remix-run/react": "2.11.2",
+    "@remix-run/serve": "2.11.2",
     "antd": "^5.16.1",
     "bignumber.js": "^9.1.2",
     "dayjs": "^1.11.10",
@@ -31,7 +31,7 @@
     "remix-utils": "^7.6.0"
   },
   "devDependencies": {
-    "@remix-run/dev": "2.11.1",
+    "@remix-run/dev": "2.11.2",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.7.4",

@@ -13,7 +13,7 @@ export const action = async ({ params }: ActionFunctionArgs) => {
   return null;
 };
 
-const Specification = ({ value, update }: { value: CandleSpecification; update: (text: CandleSpecification) => void; }) => {
+const Specification = ({ value, update, remove }: { value: CandleSpecification; update: (text: CandleSpecification) => void; remove?: () => void; }) => {
   const [first, second, third] = value.split(':');
   const [instrument, setInstrument] = useState<InstrumentName>(first as InstrumentName);
   const [granularity, setGranularity] = useState<CandlestickGranularity>(second as CandlestickGranularity);
@@ -31,6 +31,16 @@ const Specification = ({ value, update }: { value: CandleSpecification; update: 
     <Select un-ml='1' un-mr='1' un-w='20' options={granularityOptions} value={granularity} showSearch onChange={setGranularity} />
     :
     <Select un-ml='1' un-min-w='16' options={pricingOptions} value={pricing} onChange={setPricing} mode='multiple' />
+
+    {
+      remove &&
+      <div un-ml='2'
+        un-mb='2'
+        un-cursor='pointer'
+        un-hover='text-red-5'
+        className="i-ic:baseline-delete"
+        onClick={remove}></div>
+    }
   </span>;
 };
 
@@ -40,12 +50,16 @@ const Latest = () => {
   return <div>
     <header un-flex='~ wrap' un-gap='1'  >
       {
-        query.map((q, index) => <Specification value={q} key={q}
+        query.map((q, index) => <Specification value={q} key={`${index}-${q}`}
           update={value => setQuery(prev => {
             const values = [...prev];
             values[index] = value;
             return values;
-          })} />)
+          })}
+          remove={query.length > 1
+            ? () => setQuery(prev => ([...prev.slice(0, index), ...prev.slice(index + 1)]))
+            : undefined}
+        />)
       }
       <Button type='primary' un-self='center'
         icon={<div un-w='6' un-h='6' className="i-ic:baseline-add"></div>}
