@@ -9,9 +9,9 @@ export type WeeklyAlignment = 'SUNDAY' | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'T
 
 export type Candlestick = {
   time: DateTime;
-  bid: CandlestickData;
-  ask: CandlestickData;
-  mid: CandlestickData;
+  bid?: CandlestickData;
+  ask?: CandlestickData;
+  mid?: CandlestickData;
   volume: number;
   complete: boolean;
 };

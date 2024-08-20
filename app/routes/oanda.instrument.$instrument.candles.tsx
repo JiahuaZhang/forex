@@ -19,10 +19,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 const convertCandle = (candles: Candlestick[], price: 'ask' | 'bid' | 'mid' = 'mid') => candles.map(
   candle => ({
     time: +candle.time,
-    open: parseFloat(candle[price].o),
-    high: parseFloat(candle[price].h),
-    low: parseFloat(candle[price].l),
-    close: parseFloat(candle[price].c),
+    open: parseFloat(candle[price]!.o),
+    high: parseFloat(candle[price]!.h),
+    low: parseFloat(candle[price]!.l),
+    close: parseFloat(candle[price]!.c),
     volume: candle.volume,
     complete: candle.complete
   })
