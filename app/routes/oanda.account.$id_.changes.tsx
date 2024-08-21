@@ -34,8 +34,6 @@ export default function Page() {
     window.history.pushState({}, '', `${window.location.pathname}?${query}`);
   }, [id]);
 
-  console.log(fetcher.data);
-
   return (
     <div>
       <div un-grid='~' un-grid-flow='col' un-items='center' un-justify='start' un-gap='2' >
@@ -51,7 +49,6 @@ export default function Page() {
             un-text='lg'
             un-inline='grid'
             onClick={() => {
-              console.log(params.id, id);
               fetcher.submit({ id: params.id!, sinceTransactionID: id }, { method: 'post' });
             }}
           >

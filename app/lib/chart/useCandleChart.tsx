@@ -113,10 +113,13 @@ const chartOptions = {
 const use1Candle = ({ valid, candles, price, container }: { valid: boolean; candles: Candlestick[]; price: 'ask' | 'mid' | 'bid'; container: string; }) => {
   useEffect(() => {
     if (!document) return;
-    if (!valid) return;
+    if (!valid) {
+      document.getElementById(container)!.style.height = '0';
+      return;
+    } else {
+      document.getElementById(container)!.style.height = '';
+    }
     const chart = createChart(document.getElementById(container)!, chartOptions);
-    console.log(chart);
-
     const mainSeries = chart.addCandlestickSeries({ lastValueVisible: false, });
     const data = convertCandle(candles, price);
     mainSeries.setData(data as any);

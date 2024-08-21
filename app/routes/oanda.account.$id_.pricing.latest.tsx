@@ -55,8 +55,11 @@ const Latest = () => {
       }
     </header>
     <main>
+      <h1>mid:</h1>
       <div id="mid" un-h='96' />
+      <h1>ask:</h1>
       <div id="ask" un-h='96' />
+      <h1>bid:</h1>
       <div id="bid" un-h='96' />
     </main>
   </div >;
