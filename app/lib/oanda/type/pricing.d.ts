@@ -2,7 +2,7 @@ import { UnitsAvailable } from './order';
 import { PriceBucket, PriceValue } from './pricing-common';
 import { Currency, DateTime, DecimalNumber, InstrumentName } from './primitives';
 
-export type Price = {
+export type ClientPrice = {
   type: string;
   instrument: InstrumentName;
   time: DateTime;

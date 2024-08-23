@@ -1,6 +1,7 @@
+import { ClientPrice, HomeConversions } from '~/lib/oanda/type/pricing';
 import { AccountID } from '../../lib/oanda/type/account';
 import { Candlestick, CandlestickGranularity } from '../../lib/oanda/type/instrument';
-import { AcceptDatetimeFormat, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
+import { AcceptDatetimeFormat, DateTime, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
 import { oandaUrl } from './account';
 
 // type PossiblePricingComponent = `${PricingComponent}` | `${PricingComponent}${PricingComponent}` | `${PricingComponent}${PricingComponent}${PricingComponent}`;
@@ -53,4 +54,23 @@ export const getLatestCandles = async ({ acceptDatetimeFormat = 'UNIX', accountI
     granularity: CandlestickGranularity,
     candles: Candlestick[];
   };
+};
+
+export const getPricing = async ({ accountID, instruments, }: {
+  acceptDatetimeFormat?: AcceptDatetimeFormat;
+  accountID: AccountID,
+  instruments: InstrumentName[];
+  since?: DateTime;
+  includeUnitsAvailable?: boolean;
+  includeHomeConversions?: boolean;
+}) => {
+  const url = `${oandaUrl}/v3/accounts/${accountID}/pricing?instruments=${instruments.join(',')}`;
+  console.log({ url });
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+    },
+  });
+
+  return await response.json() as { prices: ClientPrice[]; homeConversions?: HomeConversions[], time: DateTime; };
 };
