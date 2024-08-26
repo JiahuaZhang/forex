@@ -16,7 +16,7 @@ const Price = ({ price }: { price: ClientPrice; }) => {
     <Descriptions.Item label='closeout bid' > {price.closeoutBid}  </Descriptions.Item>
     <Descriptions.Item label='closeout ask' > {price.closeoutAsk}  </Descriptions.Item>
     <Descriptions.Item label='status' > {price.status}  </Descriptions.Item>
-    <Descriptions.Item label='tradeable' > {price.tradeable ? <div className="i-ic:baseline-check" un-text='green-6' /> : 'x'}  </Descriptions.Item>
+    <Descriptions.Item label='tradeable' > {price.tradeable ? <div className="i-ic:baseline-check" un-text='green-6' /> : <span un-text='red-5 lg'>x</span>}  </Descriptions.Item>
     <Descriptions.Item label='quote home conversion factors positive units' > {price.quoteHomeConversionFactors?.positiveUnits}  </Descriptions.Item>
     <Descriptions.Item label='quote home conversion factors negative units' > {price.quoteHomeConversionFactors?.negativeUnits}  </Descriptions.Item>
     <Descriptions.Item label='bids' >

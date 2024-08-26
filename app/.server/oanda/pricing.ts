@@ -1,8 +1,10 @@
+import { eventStream } from 'remix-utils/sse/server';
+import { interval } from 'remix-utils/timers';
 import { ClientPrice, HomeConversions } from '~/lib/oanda/type/pricing';
 import { AccountID } from '../../lib/oanda/type/account';
 import { Candlestick, CandlestickGranularity } from '../../lib/oanda/type/instrument';
 import { AcceptDatetimeFormat, DateTime, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
-import { oandaUrl } from './account';
+import { oandaStreamUrl, oandaUrl } from './account';
 
 // type PossiblePricingComponent = `${PricingComponent}` | `${PricingComponent}${PricingComponent}` | `${PricingComponent}${PricingComponent}${PricingComponent}`;
 // export type CandleSpecification = `${InstrumentName}:${CandlestickGranularity}:${PossiblePricingComponent}`;
@@ -74,3 +76,43 @@ export const getPricing = async ({ accountID, instruments, }: {
 
   return await response.json() as { prices: ClientPrice[]; homeConversions?: HomeConversions[], time: DateTime; };
 };
+
+export const getPricingStream = ({ signal, accountID, instruments }:
+  {
+    signal: AbortSignal;
+    acceptDatetimeFormat?: AcceptDatetimeFormat;
+    accountID: AccountID;
+    instruments: InstrumentName[],
+    snapshot?: boolean,
+    includeHomeConversions?: boolean;
+  }) => eventStream(signal, send => {
+    const run = async () => {
+      const response = await fetch(`${oandaStreamUrl}/v3/accounts/${accountID}/pricing/stream?instruments=${instruments.join(',')}`,
+        { headers: { 'Authorization': `Bearer ${process.env.OANDA_API_KEY}` }, signal });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        send({ event: `${accountID}-pricing-stream`, data: JSON.stringify(errorResponse) });
+        return;
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) return;
+
+      const decoder = new TextDecoder();
+      for await (let _ of interval(1000, { signal })) {
+        // https://github.com/remix-run/remix/discussions/8461
+        console.log('handling sse on server side, be casual on vite dev mode');
+        const { done, value } = await reader.read();
+        if (done) return;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const prices = chunk.split('\n').filter(line => line.trim() !== '').map(line => JSON.parse(line));
+        prices.forEach(transaction => send({ event: `${accountID}-pricing-stream`, data: JSON.stringify(transaction) }));
+      }
+
+    };
+
+    run();
+    return () => {};
+  });
