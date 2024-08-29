@@ -2,8 +2,8 @@ import { eventStream } from 'remix-utils/sse/server';
 import { interval } from 'remix-utils/timers';
 import { ClientPrice, HomeConversions } from '~/lib/oanda/type/pricing';
 import { AccountID } from '../../lib/oanda/type/account';
-import { Candlestick, CandlestickGranularity } from '../../lib/oanda/type/instrument';
-import { AcceptDatetimeFormat, DateTime, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
+import { Candlestick, CandlestickGranularity, WeeklyAlignment } from '../../lib/oanda/type/instrument';
+import { AcceptDatetimeFormat, DateTime, DecimalNumber, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
 import { oandaStreamUrl, oandaUrl } from './account';
 
 // type PossiblePricingComponent = `${PricingComponent}` | `${PricingComponent}${PricingComponent}` | `${PricingComponent}${PricingComponent}${PricingComponent}`;
@@ -116,3 +116,31 @@ export const getPricingStream = ({ signal, accountID, instruments }:
     run();
     return () => {};
   });
+
+export const getCandles = async ({ accountID, acceptDatetimeFormat = 'UNIX', instrument, price = 'M', granularity = 'H1', count = 500, from, to, smooth = false, includeFirst = true, dailyAlignment = 17, alignmentTimezone = 'America/New_York', weeklyAlignment = 'FRIDAY', units = '1' }:
+  {
+    acceptDatetimeFormat?: AcceptDatetimeFormat;
+    accountID: AccountID;
+    instrument: InstrumentName,
+    price?: PricingComponent,
+    granularity?: CandlestickGranularity,
+    count?: number,
+    from?: DateTime,
+    to?: DateTime,
+    smooth?: boolean,
+    includeFirst?: boolean,
+    dailyAlignment?: number,
+    alignmentTimezone?: string,
+    weeklyAlignment?: WeeklyAlignment,
+    units?: DecimalNumber,
+  }) => {
+  const url = `${oandaUrl}/v3/accounts/${accountID}/instruments/${instrument}/candles?price=${price}&granularity=${granularity}&count=${count}&smooth=${smooth}&dailyAlignment=${dailyAlignment}&alignmentTimezone=${alignmentTimezone}&weeklyAlignment=${weeklyAlignment}&units=${units}`;
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
+      'Accept-Datetime-Format': acceptDatetimeFormat!
+    },
+  });
+
+  return await response.json() as { instrument: InstrumentName, granularity: CandlestickGranularity, candles: Candlestick[]; };
+};
