@@ -14,6 +14,11 @@ const Page = () => {
 
   return <div>
     <ul un-list='none' un-mt='8' un-grid='~' un-gap='4'  >
+      <li>
+        <Link to={`./analysis`}>
+          Analysis
+        </Link>
+      </li>
       {
         links.map(link => (
           <li key={link}>

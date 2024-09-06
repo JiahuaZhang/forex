@@ -26,7 +26,8 @@ const defaultCandlesProps: CandlesProps = {
 };
 
 export const getCandles = async ({ AcceptDatetimeFormat = defaultCandlesProps.AcceptDatetimeFormat, instrument, price = defaultCandlesProps.price, granularity = defaultCandlesProps.granularity, count = defaultCandlesProps.count, from, to, smooth, includeFirst, dailyAlignment, alignmentTimezone, weeklyAlignment }: CandlesProps) => {
-  const response = await fetch(`${oandaUrl}/v3/instruments/${instrument}/candles?granularity=${granularity}&price=${price}&count=${count}`, {
+  const url = `${oandaUrl}/v3/instruments/${instrument}/candles?granularity=${granularity}&price=${price}&count=${count}${from ? `&from=${from}` : ''}${to ? `&to=${to}` : ''}${smooth ? `&smooth=${smooth}` : ''}${includeFirst ? `&includeFirst=${includeFirst}` : ''}${dailyAlignment ? `&dailyAlignment=${dailyAlignment}` : ''}${alignmentTimezone ? `&alignmentTimezone=${alignmentTimezone}` : ''}${weeklyAlignment ? `&weeklyAlignment=${weeklyAlignment}` : ''}`;
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${process.env.OANDA_API_KEY ?? ''}`,
       'Accept-Datetime-Format': AcceptDatetimeFormat!
