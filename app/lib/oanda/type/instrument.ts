@@ -56,3 +56,9 @@ export type PositionBookBucket = {
   longCountPercent: DecimalNumber;
   shortCountPercent: DecimalNumber;
 };
+
+export type OandaCandlesResponse = {
+  instrument: InstrumentName;
+  granularity: CandlestickGranularity;
+  candles: Candlestick[];
+};

@@ -1,11 +1,11 @@
-import { oandaUrl } from './account';
 import { Candlestick, CandlestickGranularity, OrderBook, PositionBook, WeeklyAlignment } from '../../lib/oanda/type/instrument';
 import { AcceptDatetimeFormat, DateTime, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
+import { oandaUrl } from './account';
 
 type CandlesProps = {
   AcceptDatetimeFormat?: AcceptDatetimeFormat;
   instrument: InstrumentName;
-  price?: PricingComponent;
+  price?: PricingComponent | 'MB' | 'MA' | 'BA' | 'MBA';
   granularity?: CandlestickGranularity;
   count?: number; // default 500, max 5000
   from?: DateTime;
@@ -21,8 +21,8 @@ const defaultCandlesProps: CandlesProps = {
   AcceptDatetimeFormat: 'UNIX',
   instrument: 'GBP_USD',
   price: 'M',
-  granularity: 'M15',
-  count: 100
+  granularity: 'H1',
+  count: 200
 };
 
 export const getCandles = async ({ AcceptDatetimeFormat = defaultCandlesProps.AcceptDatetimeFormat, instrument, price = defaultCandlesProps.price, granularity = defaultCandlesProps.granularity, count = defaultCandlesProps.count, from, to, smooth, includeFirst, dailyAlignment, alignmentTimezone, weeklyAlignment }: CandlesProps) => {
@@ -69,4 +69,15 @@ export const getPositionBook = async (
   });
 
   return await response.json() as { positionBook: PositionBook; };
+};
+
+const get1CandleAnalysis = async ({ instrument, from }: { instrument: InstrumentName; from: DateTime; }) => {
+  const granularities: CandlestickGranularity[] = ['S5', 'M1', 'M15', 'H1'];
+  const result = granularities.map(granularity => getCandles({ instrument, granularity }));
+  return await Promise.all(result);
+};
+
+export const getCandlesAnalysis = async ({ instruments, from }: { instruments: InstrumentName[]; from: DateTime; }) => {
+  const result = instruments.map(async instrument => ({ [instrument]: await get1CandleAnalysis({ from, instrument }) }));
+  return await Promise.all(result);
 };

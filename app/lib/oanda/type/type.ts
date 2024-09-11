@@ -95,7 +95,7 @@ export namespace Oanda {
   export type PriceValue = PricingCommon.PriceValue;
   export type PriceBucket = PricingCommon.PriceBucket;
 
-  export type Price = Pricing.Price;
+  export type ClientPrice = Pricing.ClientPrice;
   export type PriceStatus = Pricing.PriceStatus;
   export type QuoteHomeConversionFactors = Pricing.QuoteHomeConversionFactors;
   export type HomeConversions = Pricing.HomeConversions;
@@ -189,4 +189,9 @@ export namespace Oanda {
   export type TransactionRejectReason = Transaction.TransactionRejectReason;
   export type TransactionFilter = Transaction.TransactionFilter;
   export type TransactionHeartbeat = Transaction.TransactionHeartbeat;
+
+  export namespace Response {
+    export type Candles = Instrument.OandaCandlesResponse;
+  }
+
 };
