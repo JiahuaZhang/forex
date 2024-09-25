@@ -4,6 +4,7 @@ import { DatePicker, Select, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { getCandlesAnalysis } from '~/.server/oanda/instrument';
+import { Demo } from '~/components/InstrumentCandles';
 import { currencyIcons, currencyPairs } from '~/lib/CurrencyGrid';
 import { AllInstrumentName, Currency, InstrumentName } from '~/lib/oanda/type/primitives';
 
@@ -103,6 +104,7 @@ const App = () => {
         </button>
       }
     </div>
+    <Demo />
   </div>;
 };
 
