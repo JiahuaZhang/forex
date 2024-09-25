@@ -1,47 +1,44 @@
 import { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
-import { DatePicker, Progress, Select, Statistic, Table, TimePicker, Tooltip } from 'antd';
+import { DatePicker, Select, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import { getForexIntervalSeries } from '~/.server/forex';
+import { getCandlesAnalysis } from '~/.server/oanda/instrument';
 import { currencyIcons, currencyPairs } from '~/lib/CurrencyGrid';
-import { firstMinuteAnalysis } from '~/lib/analysis';
 import { AllInstrumentName, Currency, InstrumentName } from '~/lib/oanda/type/primitives';
 
 const currencies = Object.keys(currencyPairs);
 const currencyOptions = currencies.map(value => ({ value, label: value }));
 const MajorCurrency: Currency[] = ['USD', 'EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'CHF'];
 
-export const action = async ({ request, params }: ActionFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const currency = formData.get('currency') as string;
-  // const pairs = currencyPairs[currency].map(p => `${p.substring(0, 3)}/${p.substring(3)}`);
-  const start = formData.get('start') as string;
+  const instruments = formData.get('instruments') as string;
+  const from = formData.get('start') as string;
 
-  console.log(currency, start);
-
-  // return Promise.all(getForexIntervalSeries(pairs, start));
-  return [];
+  return getCandlesAnalysis({ instruments: instruments.split(',') as InstrumentName[], from });
 };
 
 const App = () => {
   const fetcher = useFetcher<typeof action>();
-  const [currency, setCurrency] = useState('');
+  const [currency, setCurrency] = useState('usd');
   const [day, setDay] = useState(dayjs().startOf('day'));
+  // const [day, setDay] = useState(dayjs('2024-09-03'));
   const [time, setTime] = useState(dayjs().startOf('day'));
+  // const [time, setTime] = useState(dayjs('2024-09-03 2:30:00'));
   const [instruments, setInstruments] = useState<InstrumentName[]>([]);
   const [instrumentOptions, setInstrumentOptions] = useState<Record<'value' | 'label', string>[]>([]);
+  // console.log(fetcher.data);
 
   const submit = () => {
     if (!currency) return;
 
     fetcher.submit({
-      currency,
+      instruments,
       start: `${day.format('YYYY-MM-DD')} ${time.format('HH:mm:ss')}`
     },
-      {
-        method: 'post'
-      });
+      { method: 'post' }
+    );
   };
 
   useEffect(() => {
@@ -83,36 +80,29 @@ const App = () => {
         format='h:mm a'
         onChange={setTime}
       />
+    </div>
+    <div un-grid='~ justify-start gap-2 items-center' un-grid-flow='col' un-mt='2'>
+      <Select un-min-w='72'
+        mode='multiple'
+        options={instrumentOptions}
+        value={instruments}
+        onChange={setInstruments}
+        optionRender={option => {
+          const [base, quote] = (option.label as string).split('_');
+          return <div>
+            <span un-text={`${base === currency.toUpperCase() ? 'blue-600' : ''}`} >{base}</span>
+            _
+            <span un-text={`${quote === currency.toUpperCase() ? 'purple-600' : ''}`} >  {quote}</span>
+          </div>;
+        }}
+      />
       {fetcher.state === 'submitting' && <div className="i-line-md:loading-loop" un-text='blue-600' ></div>}
       {fetcher.state === 'idle' &&
-        <button onClick={submit} un-cursor='pointer' un-bg='transparent' un-border='none' un-text='lg' un-inline='grid' >
+        <button un-cursor='pointer' un-bg='transparent' un-border='none' un-text='lg' un-inline='grid' onClick={submit} >
           <div className="i-ic:baseline-check" ></div>
         </button>
       }
     </div>
-    <Select un-mt='2' un-min-w='72'
-      mode='multiple'
-      options={instrumentOptions}
-      value={instruments}
-      onChange={setInstruments}
-      optionRender={option => {
-        const [base, quote] = (option.label as string).split('_');
-        return <div>
-          <span un-text={`${base === currency.toUpperCase() ? 'blue-600' : ''}`} >{base}</span>
-          _
-          <span un-text={`${quote === currency.toUpperCase() ? 'purple-600' : ''}`} >  {quote}</span>
-        </div>;
-      }}
-    />
-    <section un-mt='2' un-flex='~ wrap' un-gap='2' >
-      {
-        instruments.map(instrument => (
-          <span un-border='1px solid blue-2' un-p='2' un-rounded='md' key={instrument}>
-            {instrument}
-          </span>
-        ))
-      }
-    </section>
   </div>;
 };
 

@@ -1,4 +1,5 @@
-import { Candlestick, CandlestickGranularity, OrderBook, PositionBook, WeeklyAlignment } from '../../lib/oanda/type/instrument';
+import { Oanda } from '~/lib/oanda/type/type';
+import { CandlestickGranularity, OrderBook, PositionBook, WeeklyAlignment } from '../../lib/oanda/type/instrument';
 import { AcceptDatetimeFormat, DateTime, InstrumentName, PricingComponent } from '../../lib/oanda/type/primitives';
 import { oandaUrl } from './account';
 
@@ -34,11 +35,7 @@ export const getCandles = async ({ AcceptDatetimeFormat = defaultCandlesProps.Ac
     }
   });
 
-  return await response.json() as {
-    instrument: InstrumentName;
-    granularity: CandlestickGranularity;
-    candles: Candlestick[];
-  };
+  return await response.json() as Oanda.Response.Candles;
 };
 
 export const getOrderBook = async (
@@ -73,7 +70,7 @@ export const getPositionBook = async (
 
 const get1CandleAnalysis = async ({ instrument, from }: { instrument: InstrumentName; from: DateTime; }) => {
   const granularities: CandlestickGranularity[] = ['S5', 'M1', 'M15', 'H1'];
-  const result = granularities.map(granularity => getCandles({ instrument, granularity }));
+  const result = granularities.map(granularity => getCandles({ instrument, granularity, price: 'MBA' }));
   return await Promise.all(result);
 };
 
