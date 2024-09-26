@@ -149,9 +149,13 @@ const compareCandles = (prev: CandlestickData, current: CandlestickData) => {
 export const linearAnalysis = (currency: Currency, data: Oanda.Response.Candles) => {
   const result = [];
   for (let index = 1; index < data.candles.length; index++) {
-    result.push(
-      compareCandles(data.candles[index - 1].mid!, data.candles[index].mid!)
-    );
+    const comparision = {
+      ...compareCandles(data.candles[index - 1].mid!, data.candles[index].mid!),
+      time: data.candles[index].time,
+      volume: data.candles[index].volume,
+      complete: data.candles[index].complete,
+    };
+    result.push(comparision);
   }
   return result;
 };
@@ -171,7 +175,6 @@ export const upDownAnalysis = (currency: Currency, data: Oanda.Response.Candles)
       firstLowestIndex = index;
     }
   }
-
 
   const milestones = [{ candleStick: starting, state: 'start', index: 0, elapsed: '0', elapsed_absolute: '0' },];
   if (firstHighestIndex === firstLowestIndex) {

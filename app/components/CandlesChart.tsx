@@ -79,8 +79,7 @@ const CandlesChart = ({ id, instrument, granularity, candles }: {
   </div>;
 };
 
-const SpreadAnalysisChart = ({ id, instrument, granularity, candles }: {
-  id: string;
+const SpreadAnalysisChart = ({ instrument, granularity, candles }: {
   instrument: InstrumentName;
   granularity: CandlestickGranularity;
   candles: Candlestick[];
@@ -117,6 +116,6 @@ export const InstrumentCandles = ({ instrument, granularity, candles }: { instru
   const id = _.uniqueId('candle-');
   return <ClientOnly>{() => <>
     <CandlesChart id={id} instrument={instrument} granularity={granularity} candles={candles} />
-    <SpreadAnalysisChart id={id} instrument={instrument} granularity={granularity} candles={candles} />
+    <SpreadAnalysisChart instrument={instrument} granularity={granularity} candles={candles} />
   </>}</ClientOnly>;
 };
