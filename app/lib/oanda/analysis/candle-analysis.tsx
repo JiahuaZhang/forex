@@ -146,8 +146,9 @@ const compareCandles = (prev: CandlestickData, current: CandlestickData) => {
   return { change_state, isAbsolute, isExpanding, isShriking, simple_state, current };
 };
 
-export const linearAnalysis = (currency: Currency, data: Oanda.Response.Candles) => {
+export const linearAnalysis = (data: Oanda.Response.Candles) => {
   const result = [];
+  let trend_state = 0;
   for (let index = 1; index < data.candles.length; index++) {
     const comparision = {
       ...compareCandles(data.candles[index - 1].mid!, data.candles[index].mid!),
@@ -155,6 +156,11 @@ export const linearAnalysis = (currency: Currency, data: Oanda.Response.Candles)
       volume: data.candles[index].volume,
       complete: data.candles[index].complete,
     };
+    if (comparision.simple_state === 0 && trend_state !== 0) {
+      comparision.simple_state = trend_state;
+    } else if (comparision.simple_state !== 0) {
+      trend_state = comparision.simple_state / 2;
+    }
     result.push(comparision);
   }
   return result;

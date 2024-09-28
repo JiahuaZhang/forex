@@ -3,10 +3,10 @@ import dayjs from 'dayjs';
 import { ChartOptions, createChart, IPriceLine } from 'lightweight-charts';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { Legend, Line, LineChart, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, Legend, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { ClientOnly } from 'remix-utils/client-only';
 import { convertCandle } from '~/lib/chart/useCandleChart';
-import { candleSpreadAnalysis } from '~/lib/oanda/analysis/candle-analysis';
+import { candleSpreadAnalysis, linearAnalysis } from '~/lib/oanda/analysis/candle-analysis';
 import { Candlestick, CandlestickGranularity } from '~/lib/oanda/type/instrument';
 import { InstrumentName } from '~/lib/oanda/type/primitives';
 
@@ -112,10 +112,37 @@ const SpreadAnalysisChart = ({ instrument, granularity, candles }: {
   </div>;
 };
 
+const TriStateAnalysis = ({ instrument, granularity, candles }: {
+  instrument: InstrumentName;
+  granularity: CandlestickGranularity;
+  candles: Candlestick[];
+}) => {
+  const triStateData = linearAnalysis({ instrument, granularity, candles });
+
+  return <div>
+    <header un-grid='~' un-grid-flow='col' un-justify='between' un-items='center' un-mb='2'>
+      {instrument} {granularity}
+    </header>
+    <BarChart
+      width={1200}
+      height={600}
+      data={triStateData}
+    >
+      <XAxis dataKey="time" tickFormatter={(value) => dayjs(value * 1000).format('YYYY-MM-DD HH:mm:ss')} />
+      <YAxis />
+      <Tooltip />
+      <Legend />
+      <Bar type="monotone" dataKey="simple_state" stroke='red' />
+      {/* <Line dataKey='volume' stroke='blue' /> */}
+    </BarChart>
+  </div>;
+};
+
 export const InstrumentCandles = ({ instrument, granularity, candles }: { instrument: InstrumentName, granularity: CandlestickGranularity, candles: Candlestick[]; }) => {
   const id = _.uniqueId('candle-');
   return <ClientOnly>{() => <>
     <CandlesChart id={id} instrument={instrument} granularity={granularity} candles={candles} />
-    <SpreadAnalysisChart instrument={instrument} granularity={granularity} candles={candles} />
+    {/* <SpreadAnalysisChart instrument={instrument} granularity={granularity} candles={candles} /> */}
+    <TriStateAnalysis instrument={instrument} granularity={granularity} candles={candles} />
   </>}</ClientOnly>;
 };
