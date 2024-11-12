@@ -18,7 +18,6 @@ dayjs.extend(timezone);
 dayjs.extend(utc);
 
 
-
 const SimpleValuation = ({ data }: { data: ReturnType<typeof firstCycleAnalysis>; }) => {
   return <div un-grid='~' un-justify='center' un-text='center' >
     <span un-text='blue-4' un-font='bold' >
