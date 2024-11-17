@@ -70,7 +70,7 @@ export const getPositionBook = async (
 
 const get1CandleAnalysis = async ({ instrument, from }: { instrument: InstrumentName; from: DateTime; }) => {
   const granularities: CandlestickGranularity[] = ['S5', 'M1', 'M15', 'H1'];
-  const result = granularities.map(granularity => getCandles({ instrument, granularity, price: 'MBA' }));
+  const result = granularities.map(granularity => getCandles({ instrument, granularity, price: 'MBA', from }));
   return await Promise.all(result);
 };
 

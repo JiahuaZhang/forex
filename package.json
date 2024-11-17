@@ -20,7 +20,7 @@
     "@remix-run/node": "2.11.2",
     "@remix-run/react": "2.11.2",
     "@remix-run/serve": "2.11.2",
-    "antd": "^5.16.1",
+    "antd": "^5.22.1",
     "bignumber.js": "^9.1.2",
     "dayjs": "^1.11.13",
     "isbot": "^4.1.0",
