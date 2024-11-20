@@ -24,12 +24,10 @@ const App = () => {
   const fetcher = useFetcher<typeof action>();
   const [currency, setCurrency] = useState('usd');
   const [day, setDay] = useState(dayjs().startOf('day'));
-  // const [day, setDay] = useState(dayjs('2024-09-03'));
   const [time, setTime] = useState(dayjs().startOf('day'));
-  // const [time, setTime] = useState(dayjs('2024-09-03 2:30:00'));
   const [instruments, setInstruments] = useState<InstrumentName[]>([]);
   const [instrumentOptions, setInstrumentOptions] = useState<Record<'value' | 'label', string>[]>([]);
-  // console.log(fetcher.data);
+  console.log(fetcher.data);
 
   const submit = () => {
     if (!currency) return;

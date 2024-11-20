@@ -143,6 +143,6 @@ export const InstrumentCandles = ({ instrument, granularity, candles }: { instru
   return <ClientOnly>{() => <>
     <CandlesChart id={id} instrument={instrument} granularity={granularity} candles={candles} />
     {/* <SpreadAnalysisChart instrument={instrument} granularity={granularity} candles={candles} /> */}
-    <TriStateAnalysis instrument={instrument} granularity={granularity} candles={candles} />
+    {/* <TriStateAnalysis instrument={instrument} granularity={granularity} candles={candles} /> */}
   </>}</ClientOnly>;
 };

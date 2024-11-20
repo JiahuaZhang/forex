@@ -9,10 +9,11 @@ import { convertCandle } from '~/lib/chart/useCandleChart';
 import { candleSpreadAnalysis, firstCycleAnalysis, linearAnalysis, multipleGranularityAnalysis, upDownAnalysis } from '~/lib/oanda/analysis/candle-analysis';
 import { Candlestick, CandlestickGranularity } from '~/lib/oanda/type/instrument';
 import { InstrumentName } from '~/lib/oanda/type/primitives';
-import USD from './data/USD_FOMC_SEPT_RATE_CUT.json';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { InstrumentCandles } from './CandlesChart';
+import CHF from '../data/chf/2024-11-1 0.3.30.json';
+import { InstrumentGrid } from './InstrumentGrid';
 
 dayjs.extend(timezone);
 dayjs.extend(utc);
@@ -148,23 +149,20 @@ const LinearTiles = ({ data }: { data: ReturnType<typeof linearAnalysis>; }) => 
 };
 
 export const Demo = () => {
-  // const result = multipleGranularityAnalysis({ currency: 'CHF', data: USD as any });
-  console.log(USD);
-  // const analysis = upDownAnalysis('USD', USD[5].GBP_USD[0]);
-  // const result = linearAnalysis('USD', USD[5].GBP_USD[0]);
-
-  // console.log(result);
-
+  const granularity: CandlestickGranularity = 'M10';
+  const index = 2;
 
   return <div>
-    <InstrumentCandles instrument='USD_JPY' granularity='S5' candles={USD[1].USD_JPY![0].candles} />
+    <InstrumentGrid data={CHF as any} currency='CHF' />
 
-    {/* <LinearTiles data={result} /> */}
 
-    {/* <Cliff data={upDownAnalysis('CHF', USD[5].GBP_USD![0])} /> */}
-    {/* {(['S5', 'M1', 'M15', 'H1'] as const).map(g => <SimpleValuation data={result[g]} />)}
-    {(['S5', 'M1', 'M15', 'H1'] as const).map(g => <SimpleCurrencyChange data={result[g]} />)}
-    {(['S5', 'M1', 'M15', 'H1'] as const).map(g => <SimplePipChange data={result[g]} />)} */}
+    {/* <InstrumentCandles instrument='EUR_CHF' granularity={granularity} candles={CHF[0].EUR_CHF![index].candles} />
+    <InstrumentCandles instrument='USD_CHF' granularity={granularity} candles={CHF[1].USD_CHF![index].candles} />
+    <InstrumentCandles instrument='AUD_CHF' granularity={granularity} candles={CHF[2].AUD_CHF![index].candles} />
+    <InstrumentCandles instrument='GBP_CHF' granularity={granularity} candles={CHF[3].GBP_CHF![index].candles} />
+    <InstrumentCandles instrument='CHF_JPY' granularity={granularity} candles={CHF[4].CHF_JPY![index].candles} />
+    <InstrumentCandles instrument='CAD_CHF' granularity={granularity} candles={CHF[5].CAD_CHF![index].candles} /> */}
+
   </div>;
 };
 
