@@ -17,7 +17,7 @@ type Props = {
 
 type Price = 'ask' | 'bid' | 'mid';
 
-type Analysis = 'candles' | 'log-return';
+type Analysis = 'candles' | 'log-return' | 'comparison';
 
 type CandlesStickAnalysis = CandlestickData & {
   'log_return': number;
@@ -112,6 +112,7 @@ const InternalGrid = ({ granularities, data, currency, allInstruments }: { curre
       <Radio.Group value={analysis} onChange={(e) => setAnalysis(e.target.value)} optionType='button' buttonStyle='solid'>
         <Radio value='candles'>candles</Radio>
         <Radio value='log-return'>log return</Radio>
+        <Radio value='comparison'>comparison</Radio>
       </Radio.Group>
 
       <Radio.Group options={granularityOptions}
@@ -126,7 +127,11 @@ const InternalGrid = ({ granularities, data, currency, allInstruments }: { curre
         <Radio value='bid'>Bid</Radio>
       </Radio.Group>
     </header>
-    <CandlesGrid currency={currency} price={pricing} data={data[granularity] ?? []} analysis={analysis} />
+
+    {
+      (analysis === 'candles' || analysis === 'log-return') &&
+      <CandlesGrid currency={currency} price={pricing} data={data[granularity] ?? []} analysis={analysis} />
+    }
   </div>;
 };
 
