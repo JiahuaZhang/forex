@@ -8,6 +8,7 @@ import { getCandlesAnalysis } from '~/.server/oanda/instrument';
 import { convertCandle } from '~/lib/chart/useCandleChart';
 import { Currency } from '~/lib/oanda/currency';
 import { Candlestick, CandlestickData, CandlestickGranularity, OandaCandlesResponse } from '~/lib/oanda/type/instrument';
+import { InstrumentName } from '~/lib/oanda/type/primitives';
 
 type Props = {
   data: Awaited<ReturnType<typeof getCandlesAnalysis>>;
@@ -18,14 +19,55 @@ type Price = 'ask' | 'bid' | 'mid';
 
 type Analysis = 'candles' | 'log-return';
 
+type CandlesStickAnalysis = CandlestickData & {
+  'log_return': number;
+};
+
+type CandleStickAnalysis = Candlestick & {
+  ask?: CandlesStickAnalysis;
+  bid?: CandlesStickAnalysis,
+  mid?: CandlesStickAnalysis,
+};
+
+type CandlesResponse = OandaCandlesResponse & {
+  candles: CandleStickAnalysis[];
+};
+
 const getGranularities = (data: Props['data']) => [...new Set(data.flatMap(d => Object.values(d).flatMap(arr => arr.map(a => a.granularity))))];
 
+const addLogReturns = (data: Candlestick[]) => data.map(d => {
+  if (d.ask) {
+    d.ask = {
+      ...d.ask,
+      'log_return': Math.log(BigNumber(d.ask!.c).dividedBy(d.ask!.o).toNumber())
+    } as CandlesStickAnalysis;
+  }
+
+  if (d.bid) {
+    d.bid = {
+      ...d.bid,
+      'log_return': Math.log(BigNumber(d.bid!.c).dividedBy(d.bid!.o).toNumber())
+    } as CandlesStickAnalysis;
+  }
+
+  if (d.mid) {
+    d.mid = {
+      ...d.bid,
+      'log_return': Math.log(BigNumber(d.mid!.c).dividedBy(d.mid!.o).toNumber())
+    } as CandlesStickAnalysis;
+  }
+  return d as CandleStickAnalysis;
+});
+
 const getOrganized = ({ data, currency }: Props) => {
-  const result: Partial<Record<CandlestickGranularity, OandaCandlesResponse[]>> = {};
+  console.log(data);
+  const result: Partial<Record<CandlestickGranularity, CandlesResponse[]>> = {};
 
   data.forEach(d => {
     Object.entries(d).forEach(([instrument, analysisData]) => {
       analysisData.forEach(a => {
+        a.candles = addLogReturns(a.candles);
+
         if (a.granularity in result) {
           result[a.granularity]!.push(a);
         } else {
@@ -53,12 +95,13 @@ const getOrganized = ({ data, currency }: Props) => {
 export const InstrumentGrid = ({ currency, data }: Props) => {
   const allGranularities = getGranularities(data);
   const organizedData = getOrganized({ data, currency });
+  const allInstruments = data.flatMap(d => Object.keys(d)) as InstrumentName[];
 
-  return <InternalGrid granularities={allGranularities} data={organizedData} currency={currency} />;
+  return <InternalGrid granularities={allGranularities} data={organizedData} currency={currency} allInstruments={allInstruments} />;
 };
 
 
-const InternalGrid = ({ granularities, data, currency }: { currency: Currency, granularities: CandlestickGranularity[], data: ReturnType<typeof getOrganized>; }) => {
+const InternalGrid = ({ granularities, data, currency, allInstruments }: { currency: Currency, granularities: CandlestickGranularity[], data: ReturnType<typeof getOrganized>; allInstruments: InstrumentName[]; }) => {
   const granularityOptions = granularities.map(value => ({ label: value, value }));
   const [granularity, setGranularity] = useState(granularities[0]);
   const [pricing, setPricing] = useState<Price>('mid');
@@ -66,16 +109,16 @@ const InternalGrid = ({ granularities, data, currency }: { currency: Currency, g
 
   return <div un-m='2'>
     <header un-grid='~' un-grid-flow='col' un-justify='between' >
+      <Radio.Group value={analysis} onChange={(e) => setAnalysis(e.target.value)} optionType='button' buttonStyle='solid'>
+        <Radio value='candles'>candles</Radio>
+        <Radio value='log-return'>log return</Radio>
+      </Radio.Group>
+
       <Radio.Group options={granularityOptions}
         optionType='button'
         buttonStyle='solid'
         value={granularity}
         onChange={value => setGranularity(value.target.value)} />
-
-      <Radio.Group value={analysis} onChange={(e) => setAnalysis(e.target.value)} optionType='button' buttonStyle='solid'>
-        <Radio value='candles'>candles</Radio>
-        <Radio value='log-return'>log return</Radio>
-      </Radio.Group>
 
       <Radio.Group value={pricing} onChange={(e) => setPricing(e.target.value)} optionType='button' buttonStyle='solid'>
         <Radio value='ask'>Ask</Radio>
@@ -98,43 +141,10 @@ const chartOptions = {
   timeScale: { timeVisible: true }
 } as ChartOptions;
 
-type CandlesStickAnalysis = CandlestickData & {
-  'log_return': number;
-};
-type CandleStickAnalysis = Candlestick & {
-  ask?: CandlesStickAnalysis;
-  bid?: CandlesStickAnalysis,
-  mid?: CandlesStickAnalysis,
-};
-const addLogReturns = (data: Candlestick[]) => data.map(d => {
-  if (d.ask) {
-    d.ask = {
-      ...d.ask,
-      'log_return': Math.log(BigNumber(d.ask!.c).dividedBy(d.ask!.o).toNumber())
-    } as CandlesStickAnalysis;
-  }
-
-  if (d.bid) {
-    d.bid = {
-      ...d.bid,
-      'log_return': Math.log(BigNumber(d.bid!.c).dividedBy(d.bid!.o).toNumber())
-    } as CandlesStickAnalysis;
-  }
-
-  if (d.mid) {
-    d.mid = {
-      ...d.bid,
-      'log_return': Math.log(BigNumber(d.mid!.c).dividedBy(d.mid!.o).toNumber())
-    } as CandlesStickAnalysis;
-  }
-  return d as CandleStickAnalysis;
-});
-
 const Candles = ({ currency, price, data, analysis }: { currency: Currency, price: Price; data: OandaCandlesResponse; analysis: Analysis; }) => {
   const [base, quote] = data.instrument.split('_');
   const id = `${data.instrument}-${data.granularity}-${price}`;
   const candles = convertCandle(data.candles, price);
-  const newData = addLogReturns(data.candles);
 
   useEffect(() => {
     if (!document || analysis !== 'candles') return;
@@ -184,7 +194,7 @@ const Candles = ({ currency, price, data, analysis }: { currency: Currency, pric
     {analysis === 'candles' && <main id={id} un-h='96' />}
     {
       analysis === 'log-return' &&
-      <LineChart data={newData} width={1200} height={600} >
+      <LineChart data={data.candles} width={1200} height={600} >
         <YAxis />
         <XAxis />
         <Tooltip />
@@ -193,4 +203,3 @@ const Candles = ({ currency, price, data, analysis }: { currency: Currency, pric
     }
   </div>;
 };
-;
