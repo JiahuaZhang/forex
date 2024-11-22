@@ -1,11 +1,13 @@
-import { Radio } from 'antd';
+import { Radio, Tooltip } from 'antd';
+import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { ChartOptions, createChart, IPriceLine } from 'lightweight-charts';
 import { Suspense, useEffect, useState } from 'react';
+import { Line, LineChart, XAxis, YAxis } from 'recharts';
 import { getCandlesAnalysis } from '~/.server/oanda/instrument';
 import { convertCandle } from '~/lib/chart/useCandleChart';
 import { Currency } from '~/lib/oanda/currency';
-import { CandlestickGranularity, OandaCandlesResponse } from '~/lib/oanda/type/instrument';
+import { Candlestick, CandlestickData, CandlestickGranularity, OandaCandlesResponse } from '~/lib/oanda/type/instrument';
 
 type Props = {
   data: Awaited<ReturnType<typeof getCandlesAnalysis>>;
@@ -13,6 +15,8 @@ type Props = {
 };
 
 type Price = 'ask' | 'bid' | 'mid';
+
+type Analysis = 'candles' | 'log-return';
 
 const getGranularities = (data: Props['data']) => [...new Set(data.flatMap(d => Object.values(d).flatMap(arr => arr.map(a => a.granularity))))];
 
@@ -58,6 +62,7 @@ const InternalGrid = ({ granularities, data, currency }: { currency: Currency, g
   const granularityOptions = granularities.map(value => ({ label: value, value }));
   const [granularity, setGranularity] = useState(granularities[0]);
   const [pricing, setPricing] = useState<Price>('mid');
+  const [analysis, setAnalysis] = useState<Analysis>('candles');
 
   return <div un-m='2'>
     <header un-grid='~' un-grid-flow='col' un-justify='between' >
@@ -67,19 +72,24 @@ const InternalGrid = ({ granularities, data, currency }: { currency: Currency, g
         value={granularity}
         onChange={value => setGranularity(value.target.value)} />
 
+      <Radio.Group value={analysis} onChange={(e) => setAnalysis(e.target.value)} optionType='button' buttonStyle='solid'>
+        <Radio value='candles'>candles</Radio>
+        <Radio value='log-return'>log return</Radio>
+      </Radio.Group>
+
       <Radio.Group value={pricing} onChange={(e) => setPricing(e.target.value)} optionType='button' buttonStyle='solid'>
         <Radio value='ask'>Ask</Radio>
         <Radio value='mid'>Mid</Radio>
         <Radio value='bid'>Bid</Radio>
       </Radio.Group>
     </header>
-    <CandlesGrid currency={currency} price={pricing} data={data[granularity] ?? []} />
+    <CandlesGrid currency={currency} price={pricing} data={data[granularity] ?? []} analysis={analysis} />
   </div>;
 };
 
-const CandlesGrid = ({ currency, price, data }: { currency: Currency, price: Price; data: OandaCandlesResponse[]; }) => {
+const CandlesGrid = ({ currency, price, data, analysis }: { currency: Currency, price: Price; data: OandaCandlesResponse[]; analysis: Analysis; }) => {
   return <Suspense>{
-    data.map(d => <Candles key={d.instrument} currency={currency} price={price} data={d} />)
+    data.map(d => <Candles key={d.instrument} currency={currency} price={price} data={d} analysis={analysis} />)
   }</Suspense>;
 };
 
@@ -88,14 +98,46 @@ const chartOptions = {
   timeScale: { timeVisible: true }
 } as ChartOptions;
 
+type CandlesStickAnalysis = CandlestickData & {
+  'log_return': number;
+};
+type CandleStickAnalysis = Candlestick & {
+  ask?: CandlesStickAnalysis;
+  bid?: CandlesStickAnalysis,
+  mid?: CandlesStickAnalysis,
+};
+const addLogReturns = (data: Candlestick[]) => data.map(d => {
+  if (d.ask) {
+    d.ask = {
+      ...d.ask,
+      'log_return': Math.log(BigNumber(d.ask!.c).dividedBy(d.ask!.o).toNumber())
+    } as CandlesStickAnalysis;
+  }
 
-const Candles = ({ currency, price, data }: { currency: Currency, price: Price; data: OandaCandlesResponse; }) => {
+  if (d.bid) {
+    d.bid = {
+      ...d.bid,
+      'log_return': Math.log(BigNumber(d.bid!.c).dividedBy(d.bid!.o).toNumber())
+    } as CandlesStickAnalysis;
+  }
+
+  if (d.mid) {
+    d.mid = {
+      ...d.bid,
+      'log_return': Math.log(BigNumber(d.mid!.c).dividedBy(d.mid!.o).toNumber())
+    } as CandlesStickAnalysis;
+  }
+  return d as CandleStickAnalysis;
+});
+
+const Candles = ({ currency, price, data, analysis }: { currency: Currency, price: Price; data: OandaCandlesResponse; analysis: Analysis; }) => {
   const [base, quote] = data.instrument.split('_');
   const id = `${data.instrument}-${data.granularity}-${price}`;
   const candles = convertCandle(data.candles, price);
+  const newData = addLogReturns(data.candles);
 
   useEffect(() => {
-    if (!document) return;
+    if (!document || analysis !== 'candles') return;
 
     const chart = createChart(document.getElementById(id)!, chartOptions);
     const mainSeries = chart.addCandlestickSeries({ lastValueVisible: false, priceScaleId: 'main' });
@@ -131,7 +173,7 @@ const Candles = ({ currency, price, data }: { currency: Currency, price: Price; 
 
     return () => chart.remove();
 
-  }, [document, id]);
+  }, [document, id, analysis]);
 
   return <div>
     <header>
@@ -139,7 +181,16 @@ const Candles = ({ currency, price, data }: { currency: Currency, price: Price; 
       /
       <span un-text={`${currency === quote ? 'purple-6' : ''}`} > {quote} </span>
     </header>
-    <main id={id} un-h='96' />
+    {analysis === 'candles' && <main id={id} un-h='96' />}
+    {
+      analysis === 'log-return' &&
+      <LineChart data={newData} width={1200} height={600} >
+        <YAxis />
+        <XAxis />
+        <Tooltip />
+        <Line dataKey='mid.log_return' />
+      </LineChart>
+    }
   </div>;
 };
 ;
