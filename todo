@@ -1,3 +1,11 @@
+Pearson correlation coefficient (r) value	Strength	Direction
+Greater than .5	Strong	Positive
+Between .3 and .5	Moderate	Positive
+Between 0 and .3	Weak	Positive
+0	None	None
+Between 0 and –.3	Weak	Negative
+Between –.3 and –.5	Moderate	Negative
+Less than –.5	Strong	Negative
 
 https://github.com/topics/economic-calendar
 https://github.com/web-infra-dev/midscene

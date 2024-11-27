@@ -109,8 +109,8 @@ const InternalGrid = ({granularities, data, currency, allInstruments}: {
 }) => {
   const granularityOptions = granularities.map(value => ({label: value, value}));
   const [granularity, setGranularity] = useState(granularities[0]);
-  const [pricing, setPricing] = useState<Price>('mid');
-  const [analysis, setAnalysis] = useState<Analysis>('candles');
+  const [price, setPrice] = useState<Price>('mid');
+  const [analysis, setAnalysis] = useState<Analysis>('comparison');
   const allInstrumentOptions = allInstruments.map(value => ({label: value, value}));
   const [comparisons, setComparisons] = useState<InstrumentName[]>([]);
 
@@ -129,7 +129,7 @@ const InternalGrid = ({granularities, data, currency, allInstruments}: {
                    value={granularity}
                    onChange={value => setGranularity(value.target.value)}/>
 
-      <Radio.Group value={pricing} onChange={(e) => setPricing(e.target.value)} optionType='button' buttonStyle='solid'>
+      <Radio.Group value={price} onChange={(e) => setPrice(e.target.value)} optionType='button' buttonStyle='solid'>
         <Radio value='ask'>Ask</Radio>
         <Radio value='mid'>Mid</Radio>
         <Radio value='bid'>Bid</Radio>
@@ -137,15 +137,18 @@ const InternalGrid = ({granularities, data, currency, allInstruments}: {
     </header>
 
     {
-      analysis === 'comparison' && <section un-m-t='2'>
-            <Select un-min-w='96' options={allInstrumentOptions} mode='multiple' value={comparisons}
-                    onChange={(e) => setComparisons(e)}/>
-        </section>
+      analysis === 'comparison' && <>
+            <section un-m-t='2'>
+                <Select un-min-w='96' options={allInstrumentOptions} mode='multiple' value={comparisons}
+                        onChange={(e) => setComparisons(e)}/>
+            </section>
+        <InstrumentsComparison currency={currency} instruments={comparisons} data={data[granularity] ?? []} price={price} />
+        </>
     }
 
     {
       (analysis === 'candles' || analysis === 'log-return') &&
-        <CandlesGrid currency={currency} price={pricing} data={data[granularity] ?? []} analysis={analysis}/>
+        <CandlesGrid currency={currency} price={price} data={data[granularity] ?? []} analysis={analysis}/>
     }
   </div>;
 };
@@ -233,3 +236,16 @@ const Candles = ({currency, price, data, analysis}: {
     }
   </div>;
 };
+
+const InstrumentsComparison = ({currency, data, price, instruments}: {
+  currency: Currency;
+  data: OandaCandlesResponse[];
+  price: Price,
+  instruments: InstrumentName[]
+}) => {
+  console.log(data, currency, price, instruments);
+  const selectedData = data.filter(d =>  instruments.includes(d.instrument) )
+  console.log(selectedData);
+
+  return <div>Instrument comparison</div>
+}
