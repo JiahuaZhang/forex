@@ -15,6 +15,11 @@ test('1 case', () => {
   expect(result).toEqual(1)
 })
 
+test('-1 case', () => {
+  const result = pearsonr([1,2], [-1,-2]);
+  expect(result).toEqual(-1)
+})
+
 test('complicated case', () => {
   const result = pearsonr(
     [3.63, 3.02 , 3.82, 3.42, 3.59, 2.87, 3.03, 3.46 , 3.36, 3.30],

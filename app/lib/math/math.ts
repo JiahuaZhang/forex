@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import oandaAccountId_Summary from "~/routes/oanda.account.$id_.summary";
 
 export const pearsonr = (x: number[], y: number[]) => {
   const length = x.length;
