@@ -27,7 +27,6 @@ const App = () => {
   const [time, setTime] = useState(dayjs().startOf('day'));
   const [instruments, setInstruments] = useState<InstrumentName[]>([]);
   const [instrumentOptions, setInstrumentOptions] = useState<Record<'value' | 'label', string>[]>([]);
-  console.log(fetcher.data);
 
   const submit = () => {
     if (!currency) return;
