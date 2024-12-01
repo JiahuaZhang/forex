@@ -1,21 +1,22 @@
-import {Radio, Select, Tooltip} from 'antd';
+import {InputNumber, Radio, Select, Tooltip} from 'antd';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import {ChartOptions, createChart, IPriceLine} from 'lightweight-charts';
 import {Suspense, useEffect, useState} from 'react';
-import {Line, LineChart, XAxis, YAxis} from 'recharts';
+import {Legend, Line, LineChart, XAxis, YAxis} from 'recharts';
 import {getCandlesAnalysis} from '~/.server/oanda/instrument';
 import {convertCandle} from '~/lib/chart/useCandleChart';
 import {Currency} from '~/lib/oanda/currency';
 import {Candlestick, CandlestickData, CandlestickGranularity, OandaCandlesResponse} from '~/lib/oanda/type/instrument';
 import {InstrumentName} from '~/lib/oanda/type/primitives';
+import {getPearsonrGroup} from "~/lib/math/data";
 
 type Props = {
   data: Awaited<ReturnType<typeof getCandlesAnalysis>>;
   currency: Currency;
 };
 
-type Price = 'ask' | 'bid' | 'mid';
+export type Price = 'ask' | 'bid' | 'mid';
 
 type Analysis = 'candles' | 'log-return' | 'comparison';
 
@@ -23,37 +24,38 @@ type CandlesStickAnalysis = CandlestickData & {
   'log_return': number;
 };
 
-type CandleStickAnalysis = Candlestick & {
+export type CandleStickAnalysis = Candlestick & {
   ask?: CandlesStickAnalysis;
   bid?: CandlesStickAnalysis,
   mid?: CandlesStickAnalysis,
-};
+}
 
-type CandlesResponse = OandaCandlesResponse & {
+export type CandlesResponse = Omit<OandaCandlesResponse, 'candles'> & {
   candles: CandleStickAnalysis[];
-};
+}
 
 const getGranularities = (data: Props['data']) => [...new Set(data.flatMap(d => Object.values(d).flatMap(arr => arr.map(a => a.granularity))))];
 
-const addLogReturns = (data: Candlestick[]) => data.map(d => {
+const addLogReturns = (data: Candlestick[], currency: Currency, instrument: InstrumentName) => data.map(d => {
+  const needFlip = instrument.startsWith(currency)
   if (d.ask) {
     d.ask = {
       ...d.ask,
-      'log_return': Math.log(BigNumber(d.ask!.c).dividedBy(d.ask!.o).toNumber())
+      'log_return': needFlip ? Math.log(BigNumber(d.ask!.o).dividedBy(d.ask!.c).toNumber()) : Math.log(BigNumber(d.ask!.c).dividedBy(d.ask!.o).toNumber())
     } as CandlesStickAnalysis;
   }
 
   if (d.bid) {
     d.bid = {
       ...d.bid,
-      'log_return': Math.log(BigNumber(d.bid!.c).dividedBy(d.bid!.o).toNumber())
+      'log_return': needFlip ? Math.log(BigNumber(d.bid!.o).dividedBy(d.bid!.c).toNumber()) : Math.log(BigNumber(d.bid!.c).dividedBy(d.bid!.o).toNumber())
     } as CandlesStickAnalysis;
   }
 
   if (d.mid) {
     d.mid = {
       ...d.bid,
-      'log_return': Math.log(BigNumber(d.mid!.c).dividedBy(d.mid!.o).toNumber())
+      'log_return': needFlip ? Math.log(BigNumber(d.mid!.o).dividedBy(d.mid!.c).toNumber()) : Math.log(BigNumber(d.mid!.c).dividedBy(d.mid!.o).toNumber())
     } as CandlesStickAnalysis;
   }
   return d as CandleStickAnalysis;
@@ -65,7 +67,7 @@ const getOrganized = ({data, currency}: Props) => {
   data.forEach(d => {
     Object.entries(d).forEach(([instrument, analysisData]) => {
       analysisData.forEach(a => {
-        a.candles = addLogReturns(a.candles);
+        a.candles = addLogReturns(a.candles, currency, instrument as InstrumentName);
 
         if (a.granularity in result) {
           result[a.granularity]!.push(a);
@@ -113,6 +115,7 @@ const InternalGrid = ({granularities, data, currency, allInstruments}: {
   const [analysis, setAnalysis] = useState<Analysis>('comparison');
   const allInstrumentOptions = allInstruments.map(value => ({label: value, value}));
   const [comparisons, setComparisons] = useState<InstrumentName[]>([]);
+  const [window, setWindow] = useState(10)
 
   return <div un-m='2'>
     <header un-grid='~' un-grid-flow='col' un-justify='between'>
@@ -139,10 +142,12 @@ const InternalGrid = ({granularities, data, currency, allInstruments}: {
     {
       analysis === 'comparison' && <>
             <section un-m-t='2'>
-                <Select un-min-w='96' options={allInstrumentOptions} mode='multiple' value={comparisons}
+                <Select un-min-w='96' un-mr={2} options={allInstrumentOptions} mode='multiple' value={comparisons}
                         onChange={(e) => setComparisons(e)}/>
+                <InputNumber min={3} max={100} value={window} onChange={value => setWindow(value ?? 0)}/>
             </section>
-        <InstrumentsComparison currency={currency} instruments={comparisons} data={data[granularity] ?? []} price={price} />
+            <InstrumentsComparison currency={currency} instruments={comparisons} data={data[granularity] ?? []}
+                                   price={price} window={window}/>
         </>
     }
 
@@ -237,15 +242,28 @@ const Candles = ({currency, price, data, analysis}: {
   </div>;
 };
 
-const InstrumentsComparison = ({currency, data, price, instruments}: {
+const chartColors = [
+  '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#a1c9f4', '#ffb3ba', '#baffc9', '#f5d4a0', '#fabebe', '#aec6cf', '#f3c7a0', '#4c72b0', '#dd8452', '#55a868', '#c44e52', '#8172b2', '#937860', '#da72b3', '#6b5b95', '#feb236', '#d64161', '#ff7b25', '#86af49', '#f0b49e', '#b5e2fa', '#003f5c', '#58508d', '#bc5090', '#ff6361', '#ffa600', '#665191', '#ff6e54', '#1f9acd', '#48c774', '#3273dc', '#f14668', '#ffe66d', '#4a4a4a', '#a0522d'
+];
+const InstrumentsComparison = ({currency, data, price, instruments, window}: {
   currency: Currency;
-  data: OandaCandlesResponse[];
+  data: CandlesResponse[];
   price: Price,
-  instruments: InstrumentName[]
+  instruments: InstrumentName[];
+  window: number;
 }) => {
-  console.log(data, currency, price, instruments);
-  const selectedData = data.filter(d =>  instruments.includes(d.instrument) )
-  console.log(selectedData);
+  if (instruments.length < 2) return <div>Need at least 2 instruments to compare</div>
 
-  return <div>Instrument comparison</div>
+  const values = getPearsonrGroup({data, price, instruments, window})
+  const keys = Object.keys(values[0]).filter(key => key !== 'time')
+
+  return <div>
+    <LineChart width={1200} height={600} data={values}>
+      <XAxis dataKey='time'/>
+      <YAxis/>
+      <Tooltip/>
+      <Legend/>
+      {keys.map((k, index) => <Line type={'monotone'} dataKey={k} key={k} stroke={chartColors[index]}/>)}
+    </LineChart>
+  </div>
 }
