@@ -1,6 +1,7 @@
 import {CandlesResponse, Price} from "~/components/InstrumentGrid";
 import {pearsonr} from "~/lib/math/math";
 import {InstrumentName} from "~/lib/oanda/type/primitives";
+import {Currency} from "~/lib/oanda/currency";
 
 export const getPearsonr = (x: CandlesResponse, y: CandlesResponse, window: number, price: Price) => {
   const x_values = x.candles.map(val => val[price]?.log_return)
@@ -17,11 +18,12 @@ export const getPearsonr = (x: CandlesResponse, y: CandlesResponse, window: numb
   return result
 }
 
-export const getPearsonrGroup = ({data, price, instruments, window}: {
+export const getPearsonrGroup = ({data, price, instruments, window, currency}: {
   data: CandlesResponse[];
   price: Price,
   instruments: InstrumentName[];
   window: number;
+  currency: Currency;
 }) => {
   if (instruments.length < 2) return [];
 
@@ -30,7 +32,7 @@ export const getPearsonrGroup = ({data, price, instruments, window}: {
 
   for (let index = 0; index < selectedData.length - 1; index++) {
     for (let j = index + 1; j < selectedData.length; j++) {
-      const name = `${selectedData[index].instrument} : ${selectedData[j].instrument}`;
+      const name = `${selectedData[index].instrument.replace(currency, '').replace('_', '')} : ${selectedData[j].instrument.replace(currency, '').replace('_', '')}`;
       groups[name] = {
         x: selectedData[index],
         y: selectedData[j]

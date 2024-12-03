@@ -1,15 +1,18 @@
-import {InputNumber, Radio, Select, Tooltip} from 'antd';
+import {InputNumber, Radio, Select} from 'antd';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import {ChartOptions, createChart, IPriceLine} from 'lightweight-charts';
 import {Suspense, useEffect, useState} from 'react';
-import {Legend, Line, LineChart, XAxis, YAxis} from 'recharts';
+import {Legend, Line, LineChart, Tooltip, XAxis, YAxis} from 'recharts';
 import {getCandlesAnalysis} from '~/.server/oanda/instrument';
 import {convertCandle} from '~/lib/chart/useCandleChart';
 import {Currency} from '~/lib/oanda/currency';
 import {Candlestick, CandlestickData, CandlestickGranularity, OandaCandlesResponse} from '~/lib/oanda/type/instrument';
 import {InstrumentName} from '~/lib/oanda/type/primitives';
 import {getPearsonrGroup} from "~/lib/math/data";
+import duration from "dayjs/plugin/duration";
+
+dayjs.extend(duration);
 
 type Props = {
   data: Awaited<ReturnType<typeof getCandlesAnalysis>>;
@@ -144,7 +147,7 @@ const InternalGrid = ({granularities, data, currency, allInstruments}: {
             <section un-m-t='2'>
                 <Select un-min-w='96' un-mr={2} options={allInstrumentOptions} mode='multiple' value={comparisons}
                         onChange={(e) => setComparisons(e)}/>
-                <InputNumber min={3} max={100} value={window} onChange={value => setWindow(value ?? 0)}/>
+                <InputNumber min={3} max={1000} value={window} onChange={value => setWindow(value ?? 0)}/>
             </section>
             <InstrumentsComparison currency={currency} instruments={comparisons} data={data[granularity] ?? []}
                                    price={price} window={window}/>
@@ -254,12 +257,18 @@ const InstrumentsComparison = ({currency, data, price, instruments, window}: {
 }) => {
   if (instruments.length < 2) return <div>Need at least 2 instruments to compare</div>
 
-  const values = getPearsonrGroup({data, price, instruments, window})
+  const start = +data[0].candles[0].time * 1000;
+  const end = +data[0].candles[window].time * 1000;
+  const duration = dayjs.duration(end - start)
+  console.log(`${duration.asSeconds()} seconds, ${duration.asMinutes()} minutes`)
+
+  const values = getPearsonrGroup({data, price, instruments, window, currency})
   const keys = Object.keys(values[0]).filter(key => key !== 'time')
 
   return <div>
+    <h1 un-text={'sm center'} >{currency}</h1>
     <LineChart width={1200} height={600} data={values}>
-      <XAxis dataKey='time'/>
+      <XAxis dataKey='time' tickFormatter={(value) => dayjs(value * 1000).format('YYYY-MM-DD HH:mm:ss')} />
       <YAxis/>
       <Tooltip/>
       <Legend/>
