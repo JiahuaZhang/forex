@@ -21,7 +21,7 @@ type Props = {
 
 export type Price = 'ask' | 'bid' | 'mid';
 
-type Analysis = 'candles' | 'log-return' | 'comparison';
+type Analysis = 'candles' | 'log-return' | 'comparison' | 'single-comparison';
 
 type CandlesStickAnalysis = CandlestickData & {
   'log_return': number;
@@ -96,6 +96,9 @@ const getOrganized = ({data, currency}: Props) => {
   return result;
 };
 
+const Duration = ({start, end, ...rest}: { start: number, end: number }) =>
+  <span {...rest} >{dayjs.duration(dayjs(end).diff(dayjs(start))).format('HH:mm:ss')}</span>
+
 export const InstrumentGrid = ({currency, data}: Props) => {
   const allGranularities = getGranularities(data);
   const organizedData = getOrganized({data, currency});
@@ -104,7 +107,6 @@ export const InstrumentGrid = ({currency, data}: Props) => {
   return <InternalGrid granularities={allGranularities} data={organizedData} currency={currency}
                        allInstruments={allInstruments}/>;
 };
-
 
 const InternalGrid = ({granularities, data, currency, allInstruments}: {
   currency: Currency,
@@ -115,10 +117,15 @@ const InternalGrid = ({granularities, data, currency, allInstruments}: {
   const granularityOptions = granularities.map(value => ({label: value, value}));
   const [granularity, setGranularity] = useState(granularities[0]);
   const [price, setPrice] = useState<Price>('mid');
-  const [analysis, setAnalysis] = useState<Analysis>('comparison');
+  const [analysis, setAnalysis] = useState<Analysis>('single-comparison');
   const allInstrumentOptions = allInstruments.map(value => ({label: value, value}));
   const [comparisons, setComparisons] = useState<InstrumentName[]>([]);
-  const [window, setWindow] = useState(10)
+  const [window, setWindow] = useState(12);
+  const otherCurrencyOptions = allInstruments.map(value => value.replace(currency, '').replace('_', '') as Currency).map(value => ({
+    label: value,
+    value
+  }));
+  const [otherCurrency, setOtherCurrency] = useState(otherCurrencyOptions[0].value);
 
   return <div un-m='2'>
     <header un-grid='~' un-grid-flow='col' un-justify='between'>
@@ -127,6 +134,7 @@ const InternalGrid = ({granularities, data, currency, allInstruments}: {
         <Radio value='candles'>candles</Radio>
         <Radio value='log-return'>log return</Radio>
         <Radio value='comparison'>comparison</Radio>
+        <Radio value='single-comparison'>single comparions</Radio>
       </Radio.Group>
 
       <Radio.Group options={granularityOptions}
@@ -148,9 +156,25 @@ const InternalGrid = ({granularities, data, currency, allInstruments}: {
                 <Select un-min-w='96' un-mr={2} options={allInstrumentOptions} mode='multiple' value={comparisons}
                         onChange={(e) => setComparisons(e)}/>
                 <InputNumber min={3} max={1000} value={window} onChange={value => setWindow(value ?? 0)}/>
+                <Duration un-ml={2} start={+data[granularity]![0].candles[0].time * 1000}
+                          end={+data[granularity]![0].candles[window].time * 1000}/>
             </section>
             <InstrumentsComparison currency={currency} instruments={comparisons} data={data[granularity] ?? []}
                                    price={price} window={window}/>
+        </>
+    }
+
+    {
+      analysis === 'single-comparison' && <>
+            <section un-m-t='2'>
+                <Select un-min-w='96' un-mr={2} options={otherCurrencyOptions} value={otherCurrency}
+                        onChange={(e) => setOtherCurrency(e)}/>
+                <InputNumber min={3} max={1000} value={window} onChange={value => setWindow(value ?? 0)}/>
+                <Duration un-ml={2} start={+data[granularity]![0].candles[0].time * 1000}
+                          end={+data[granularity]![0].candles[window].time * 1000}/>
+            </section>
+            <SingleInstrumentComparison currency={currency} comparison={otherCurrency} data={data[granularity] ?? []}
+                                        price={price} window={window}/>
         </>
     }
 
@@ -257,22 +281,36 @@ const InstrumentsComparison = ({currency, data, price, instruments, window}: {
 }) => {
   if (instruments.length < 2) return <div>Need at least 2 instruments to compare</div>
 
-  const start = +data[0].candles[0].time * 1000;
-  const end = +data[0].candles[window].time * 1000;
-  const duration = dayjs.duration(end - start)
-  console.log(`${duration.asSeconds()} seconds, ${duration.asMinutes()} minutes`)
-
   const values = getPearsonrGroup({data, price, instruments, window, currency})
   const keys = Object.keys(values[0]).filter(key => key !== 'time')
 
   return <div>
-    <h1 un-text={'sm center'} >{currency}</h1>
+    <h1 un-text={'sm center'}>{currency}</h1>
     <LineChart width={1200} height={600} data={values}>
-      <XAxis dataKey='time' tickFormatter={(value) => dayjs(value * 1000).format('YYYY-MM-DD HH:mm:ss')} />
+      <XAxis dataKey='time' tickFormatter={(value) => dayjs(value * 1000).format('YYYY-MM-DD HH:mm:ss')}/>
       <YAxis/>
       <Tooltip/>
       <Legend/>
       {keys.map((k, index) => <Line type={'monotone'} dataKey={k} key={k} stroke={chartColors[index]}/>)}
     </LineChart>
+  </div>
+}
+
+const SingleInstrumentComparison = ({currency, comparison, data, price, window}: {
+  currency: Currency,
+  comparison: Currency,
+  data: CandlesResponse[];
+  price: Price,
+  window: number;
+}) => {
+  const start = dayjs(+data[0].candles[0].time * 1000);
+  const end = dayjs(+data[0].candles[window].time * 1000);
+  const duration = dayjs.duration(end.diff(start))
+  console.log(`${duration.asSeconds()}, ${duration.asMinutes()}, ${duration.asHours()}`)
+  console.log(duration.format('HH:mm:ss'))
+
+  // console.log(currency, comparison, data, price, window);
+  return <div>
+    {/*<h1 un-text={'sm'} >{end.from(start)}</h1>*/}
   </div>
 }
