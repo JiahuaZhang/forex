@@ -52,3 +52,35 @@ export const getPearsonrGroup = ({data, price, instruments, window, currency}: {
   })
   return result
 }
+
+export const getSinglePearsonrGroup = ({data, price, window, currency, comparison}: {
+  data: CandlesResponse[];
+  price: Price,
+  window: number;
+  currency: Currency;
+  comparison: Currency;
+}) => {
+  const groups: Record<string, { x: CandlesResponse, y: CandlesResponse, pearsonr?: number[] }> = {};
+  const baseData = data.filter(d => d.instrument.includes(comparison))[0]
+
+  for (let index = 0; index < data.length; index++) {
+    if (data[index].instrument === baseData.instrument) continue;
+    const name = `${comparison} : ${data[index].instrument.replace(currency, '').replace('_', '')}`;
+    groups[name] = {
+      x: baseData,
+      y: data[index]
+    }
+  }
+
+  Object.values(groups).forEach(group => {
+    group.pearsonr = getPearsonr(group.x, group.y, window, price)
+  })
+
+  const result: Record<string, string | number>  [] = baseData.candles.map(candle => ({time: candle.time})).slice(0, baseData.candles.length - window - 1);
+  Object.entries(groups).forEach(([key, value]) => {
+    value.pearsonr?.forEach((value, index) => {
+      result[index][key] = value
+    })
+  })
+  return result
+}

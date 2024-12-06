@@ -9,7 +9,7 @@ import {convertCandle} from '~/lib/chart/useCandleChart';
 import {Currency} from '~/lib/oanda/currency';
 import {Candlestick, CandlestickData, CandlestickGranularity, OandaCandlesResponse} from '~/lib/oanda/type/instrument';
 import {InstrumentName} from '~/lib/oanda/type/primitives';
-import {getPearsonrGroup} from "~/lib/math/data";
+import {getPearsonrGroup, getSinglePearsonrGroup} from "~/lib/math/data";
 import duration from "dayjs/plugin/duration";
 
 dayjs.extend(duration);
@@ -303,14 +303,17 @@ const SingleInstrumentComparison = ({currency, comparison, data, price, window}:
   price: Price,
   window: number;
 }) => {
-  const start = dayjs(+data[0].candles[0].time * 1000);
-  const end = dayjs(+data[0].candles[window].time * 1000);
-  const duration = dayjs.duration(end.diff(start))
-  console.log(`${duration.asSeconds()}, ${duration.asMinutes()}, ${duration.asHours()}`)
-  console.log(duration.format('HH:mm:ss'))
+  const values = getSinglePearsonrGroup({data, price, comparison, window, currency})
+  const keys = Object.keys(values[0]).filter(key => key !== 'time')
 
-  // console.log(currency, comparison, data, price, window);
   return <div>
-    {/*<h1 un-text={'sm'} >{end.from(start)}</h1>*/}
+    <h1 un-text={'sm center'}>{currency}</h1>
+    <LineChart width={1200} height={600} data={values}>
+      <XAxis dataKey='time' tickFormatter={(value) => dayjs(value * 1000).format('YYYY-MM-DD HH:mm:ss')}/>
+      <YAxis/>
+      <Tooltip/>
+      <Legend/>
+      {keys.map((k, index) => <Line type={'monotone'} dataKey={k} key={k} stroke={chartColors[index]}/>)}
+    </LineChart>
   </div>
 }
