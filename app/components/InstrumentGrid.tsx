@@ -308,8 +308,9 @@ const SingleInstrumentComparison = ({currency, comparison, data, price, window}:
 
   return <div>
     <h1 un-text={'sm center'}>{currency}</h1>
-    <LineChart width={1200} height={600} data={values}>
-      <XAxis dataKey='time' tickFormatter={(value) => dayjs(value * 1000).format('YYYY-MM-DD HH:mm:ss')}/>
+    <LineChart width={1200} height={800} data={values}>
+      <XAxis dataKey='time' height={68} tickFormatter={(value) => dayjs(value * 1000).format('YYYY-MM-DD HH:mm:ss')}
+             angle={70}/>
       <YAxis/>
       <Tooltip/>
       <Legend/>

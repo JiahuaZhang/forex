@@ -2,7 +2,7 @@ import { ActionFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import { DatePicker, Select, TimePicker } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import {Suspense, useEffect, useState} from 'react';
 import { getCandlesAnalysis } from '~/.server/oanda/instrument';
 import { Demo } from '~/components/InstrumentCandles';
 import { currencyIcons, currencyPairs } from '~/lib/CurrencyGrid';
@@ -101,7 +101,9 @@ const App = () => {
         </button>
       }
     </div>
-    <Demo />
+    <Suspense>
+      <Demo />
+    </Suspense>
   </div>;
 };
 
